@@ -4,6 +4,14 @@ Uppdaterad 4 november 2026. [Produktöversikt](README.md)
 
 Kontrollera leverantörens senaste besked för er produktversion och plattform före uppdatering.
 
+## Pythonmiljöer och egna skript
+
+QGIS, ArcGIS Pro och FME kan använda separata Pythonmiljöer med egna beroenden. Kontrollera om miljöerna innehåller `Brotli` eller `brotlicffi`. Rättade versioner är `1.2.1` respektive `1.2.1.0`.
+
+Andra paket kan också ha egna kopior av Brotli. Kontrollera därför den Pythonmiljö som faktiskt används och följ programmets eller pakethanterarens anvisningar för uppdatering. En uppdatering av OSGeo4W:s `brotli`-paket rättar inte automatiskt Pythonpaket i separata miljöer. Installerade paket innebär inte i sig att sårbarheten går att utnyttja.
+
+Källa: [GitHub Security Advisory GHSA-9v8h-qqgm-4m35](https://github.com/advisories/GHSA-9v8h-qqgm-4m35).
+
 ## QGIS
 
 ### Windows med OSGeo4W
