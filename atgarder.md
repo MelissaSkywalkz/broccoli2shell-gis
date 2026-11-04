@@ -39,7 +39,7 @@ Källor: [OSGeo4W:s paketregister](https://download.osgeo.org/osgeo4w/v2/x86_64/
 Origo Server använder Node.js. Kontrollera vilken Node.js-installation som kör servern, inte bara versionen i en terminal.
 
 1. Identifiera tjänstens Node.js-installation via startkonfiguration, tjänstehanterare eller container.
-2. Kontrollera versionen. Node.js har rättningen i `22.23.4`, `24.22.1` och `26.12.1` samt senare rättade versioner inom respektive gren. Välj en stödd version som fungerar med er Origo Server-installation.
+2. Kontrollera versionen. Node.js har rättningen i `22.23.4`, `24.22.1` och `26.12.1` samt senare rättade versioner inom respektive gren. Välj en rättad version som fungerar med er Origo Server-installation. Om versionsgrenen inte längre får säkerhetsuppdateringar behöver ni byta till en stödd gren.
 3. Uppdatera Node.js och starta om Origo Server. `npm install` uppdaterar inte Node.js-körmiljön.
 4. Kontrollera versionen som den omstartade tjänsten använder. Testa serverns API:er och övriga funktioner som används hos er.
 

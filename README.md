@@ -13,6 +13,16 @@ CISA lade till sårbarheten i sin [KEV-katalog](https://www.cisa.gov/known-explo
 
 [CERT-SE:s information om Google Brotli](https://www.cert.se/2026/10/kritisk-sarbarhet-i-google-brotli.html)
 
+## Berörda Brotli-versioner
+
+| Gren | Sårbara versioner | Rättad version |
+| --- | --- | --- |
+| 1.0 | `1.0.3` till `1.0.9` | `1.0.10` |
+| 1.1 | `1.1.0` | `1.1.1` |
+| 1.2 | `1.2.0` | `1.2.1` |
+
+Versionerna kommer från [Googles CVE-post](https://www.cve.org/CVERecord?id=CVE-2026-111497). Distributioner kan ha rättat sårbarheten genom att föra in ändringen i äldre paketversioner, vilket exempelvis [Debian](https://security-tracker.debian.org/tracker/CVE-2026-111497) har gjort. Kontrollera därför distributionens säkerhetsbesked innan ni bedömer ett installerat paket enbart utifrån versionsnumret.
+
 ## Produktöversikt
 
 | Produkt | Läget | Åtgärder |
