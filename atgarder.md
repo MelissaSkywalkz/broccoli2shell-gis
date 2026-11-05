@@ -1,6 +1,6 @@
 # Åtgärder för GIS-installationer
 
-Uppdaterad 4 november 2026. [Produktöversikt](README.md)
+Uppdaterad 5 november 2026. [Produktöversikt](README.md)
 
 Kontrollera leverantörens senaste besked för er produktversion och plattform före uppdatering.
 
@@ -54,6 +54,22 @@ Origo Server använder Node.js. Kontrollera vilken Node.js-installation som kör
 Node.js är berört, men varje Origo Server-installation är inte automatiskt sårbar för angrepp. Det beror på om servern avkodar Brotli-data som en angripare styr.
 
 Källor: [Node.js säkerhetsbesked](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases) · [Origo Server](https://github.com/origo-map/origo-server)
+
+## Hajk
+
+Hajk 4 finns som **NodeJS Edition** (Backend, Client och Admin) och **Simple Edition** (statiska klientfiler utan egen Node.js-backend). NodeJS Edition använder Node.js, även vid containerdrift. Kontrollera vilken utgåva ni använder. Äldre och anpassade installationer kan skilja sig.
+
+1. Identifiera hur Hajk körs: separat Node.js-tjänst, färdigt NodeJS-paket eller container. Kontrollera vilken Node.js-version som **den körande backenden** använder, inte bara versionen i administratörens terminal.
+2. Vid vanlig Node.js-installation: kontrollera med `node --version` i rätt körmiljö. Vid Docker: kör exempelvis `docker exec <containernamn> node --version` i den aktuella containern.
+3. Rättade Node.js-versioner är `22.23.4`, `24.22.1` och `26.12.1` eller senare rättade versioner i respektive gren. Uppdatera till en säkerhetsstödd, kompatibel version. Äldre grenar utan säkerhetsstöd behöver ersättas.
+4. Starta om Node.js-tjänsten. För containrar: hämta eller bygg en avbildning med rättad Node.js-version **och återskapa containern**; att enbart hämta en ny avbildning ändrar inte en redan körande container.
+5. Bekräfta Node.js-versionen efter omstart och testa kartvisning, Admin, API och eventuella integrationer.
+
+**Observera:** Hajk 4.3.0 publicerades den 20 april 2026. Dess Dockerfile använde då `node:24-slim`, före Node.js säkerhetsrättning den 21 oktober. Kontrollera den faktiskt körande containern; taggnamn och Dockerfile visar inte i sig vilken patchversion som finns i en viss installation. Hajks aktuella källkod använder i stället Node.js 26 som bas för Dockerbyggen, men det säger inte att tidigare utgivna avbildningar har uppdaterats.
+
+En berörd Node.js-version innebär inte automatiskt att ett angrepp mot Hajk har verifierats. `npm audit` kontrollerar inte själva Node.js-körmiljön. Simple Edition har ingen egen Node.js-backend, men eventuella andra tjänster i driftsmiljön måste bedömas separat.
+
+Källor: [Hajk 4.3.0](https://github.com/hajkmap/Hajk/releases/tag/v4.3.0) · [Dockerfile för 4.3.0](https://github.com/hajkmap/Hajk/blob/v4.3.0/Dockerfile) · [Hajks utgåvor och installationssätt](https://github.com/hajkmap/Hajk/blob/master/docs/releases.md) · [Node.js säkerhetsbesked](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases)
 
 ## FME
 

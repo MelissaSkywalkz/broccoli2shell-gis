@@ -3,7 +3,7 @@
 [![CVE-2026-111497](https://img.shields.io/badge/CVE-2026--111497-f12c35.svg)](https://www.cve.org/CVERecord?id=CVE-2026-111497)
 [![CVSS 4.0: 9.2 Critical](https://img.shields.io/badge/CVSS%204.0-9.2%20Critical-f12c35.svg)](https://www.cert.se/2026/10/kritisk-sarbarhet-i-google-brotli.html)
 
-Uppdaterad 4 november 2026
+Uppdaterad 5 november 2026
 
 Broccoli2Shell (CVE-2026-111497), även kallad Node2Shell eller HTTP2Shell, är en kritisk sårbarhet i Google Brotli. Brotli används för att komprimera och packa upp data. Särskilt utformade Brotli-data kan krascha program som använder en sårbar avkodare. Angrepp kan också röja minnesinnehåll eller leda till att angriparens kod körs. CVSS 9,2.
 
@@ -29,6 +29,7 @@ Versionerna kommer från [Googles CVE-post](https://www.cve.org/CVERecord?id=CVE
 | --- | --- | --- |
 | QGIS / OSGeo4W | Brotli kan uppdateras separat. Andra komponenter kan ha egna kopior. | [QGIS](atgarder.md#qgis) |
 | Origo Server | Node.js har fått säkerhetsrättningar. Kontrollera serverns körmiljö. | [Origo Server](atgarder.md#origo-server) |
+| Hajk (NodeJS Edition) | Använder Node.js i backend. Kontrollera körmiljön, även i containrar. Simple Edition saknar egen Node.js-backend. | [Hajk](atgarder.md#hajk) |
 | FME Form / Flow | Safe beskriver berörda funktioner och förbereder rättade byggen. | [FME](atgarder.md#fme) |
 | ArcGIS | Esri anger påverkan på Enterprise och Pro. Rättningar varierar mellan versioner och komponenter. | [ArcGIS](atgarder.md#arcgis) |
 
