@@ -20,7 +20,7 @@ Lägesbild per 5 november 2026. Tabellen skiljer mellan leverantörsbekräftad p
 | --- | --- | --- | --- |
 | **FME Form / Flow** | Safe bekräftar påverkan och förbereder Brotli-rättningar. | [Safe](https://support.safe.com/hc/en-us/articles/50040725669517-Brotli-Decoder-CVE-2026-111497-Is-FME-Impacted) | [FME](atgarder.md#fme-form-och-flow) |
 | **ArcGIS** | Esri bekräftar påverkan för angivna produkter och versioner. | [Esri](https://www.esri.com/arcgis-blog/products/trust-arcgis/administration/brotli-vulnerabilities-broccoli2shell) | [ArcGIS](atgarder.md#arcgis) |
-| **QGIS / OSGeo4W** | Rättat Brotli-paket finns i OSGeo4W. Det är paketinformation, inte ett besked om QGIS som helhet. | [OSGeo4W](https://download.osgeo.org/osgeo4w/v2/x86_64/setup.ini.bz2) | [QGIS](atgarder.md#qgis--osgeo4w) |
+| **QGIS / OSGeo4W** | OSGeo4W erbjuder ett rättat Brotli-paket. Debian och Ubuntu har publicerat säkerhetsuppdateringar för Brotli. | [OSGeo4W](https://download.osgeo.org/osgeo4w/v2/x86_64/setup.ini.bz2) · [QGIS](https://www.qgis.org/resources/support/security/) · [Debian](https://security-tracker.debian.org/tracker/CVE-2026-111497) · [Ubuntu](https://ubuntu.com/security/CVE-2026-111497) | [QGIS](atgarder.md#qgis--osgeo4w) |
 | **Origo Server** | Serverkoden använder Node.js och Express. Node.js har fått en Brotli-rättning. | [Origo Server](https://github.com/origo-map/origo-server) · [Node.js](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases) | [Origo Server](atgarder.md#origo-server) |
 | **Hajk** | NodeJS Edition använder Node.js i drift. Simple Edition saknar egen Node.js-backend. | [Hajk](https://github.com/hajkmap/Hajk/blob/master/docs/releases.md) | [Hajk](atgarder.md#hajk) |
 
@@ -48,6 +48,6 @@ Dessa är versioner av själva Brotli-biblioteket. Produkter och Linuxdistributi
 
 Detta är en fristående sammanställning med fokus på GIS. Den representerar inte någon arbetsgivare, myndighet eller leverantör och utfärdar inga egna säkerhetsbesked.
 
-Att ett bibliotek eller beroende förekommer i en produkt är inte i sig en bekräftelse på att en viss installation är exploaterbar. Där produktspecifik påverkan inte har bekräftats skiljer vägledningen uttryckligen på det och dokumenterade tekniska beroenden.
+Sammanställningen skiljer mellan leverantörernas säkerhetsbesked och dokumenterade beroenden eller paketuppdateringar. Följ originalkällorna för produktspecifik information.
 
 Rättelser kan följas i Git-historiken. Har du en relevant officiell källa eller rättelse? Öppna gärna ett [GitHub Issue](https://github.com/MelissaSkywalkz/broccoli2shell-gis/issues). Publicera inte interna systemuppgifter, känsliga loggar eller uppgifter om enskilda installationers säkerhet.

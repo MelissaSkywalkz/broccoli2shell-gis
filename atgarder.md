@@ -8,7 +8,7 @@ Informationen avser Broccoli2Shell (CVE-2026-111497) och bygger på leverantöre
 
 [Safe Software bekräftar](https://support.safe.com/hc/en-us/articles/50040725669517-Brotli-Decoder-CVE-2026-111497-Is-FME-Impacted) att FME Form påverkas genom Workbench och FME Engine och att FME Flow påverkas genom de Engines som kör arbetsytor. Safe beskriver bland annat HTTPCaller, OpenAPICaller, webbanslutningar, Brotli-komprimerade Parquet-filer och DuckDB som relevanta funktioner. FME levererar inte Node.js; påverkan gäller andra Brotli-komponenter.
 
-**Rättningsstatus:** Safe förbereder rättade byggen av FME **2026.1, 2026.2 och 2026.3** med Brotli 1.2.1. Safe rekommenderar att användare av äldre FME-versioner planerar att uppgradera till någon av dessa utgåvor när rättningarna finns tillgängliga. DuckDB innehåller en separat Brotli-kopia vars rättning enligt Safe inväntar en utgiven DuckDB-version. Det går därför inte att behandla enbart den gemensamma Brotli-uppdateringen som en bekräftad fullständig rättning för DuckDB.
+**Rättningsstatus:** Safe förbereder rättade byggen av FME **2026.1, 2026.2 och 2026.3** med Brotli 1.2.1. Safe rekommenderar att användare av äldre FME-versioner planerar att uppgradera till någon av dessa utgåvor när rättningarna finns tillgängliga. Safe uppger att DuckDB innehåller en separat Brotli-kopia och att rättningen ännu inte finns i en utgiven DuckDB-version.
 
 **I väntan på rättning rekommenderar Safe bland annat att:**
 
@@ -46,7 +46,7 @@ QGIS, ArcGIS Pro och FME kan använda separata Pythonmiljöer med egna paket. D�
 
 ## QGIS / OSGeo4W
 
-[OSGeo4W:s paketregister](https://download.osgeo.org/osgeo4w/v2/x86_64/setup.ini.bz2) erbjuder det rättade Brotli-paketet **`1.2.1-1`**. Det är en bekräftad paketuppdatering, inte ett produktspecifikt säkerhetsbesked om QGIS.
+[OSGeo4W:s paketregister](https://download.osgeo.org/osgeo4w/v2/x86_64/setup.ini.bz2) erbjuder det rättade Brotli-paketet **`1.2.1-1`**.
 
 För QGIS-installationer som hanteras genom **OSGeo4W Network Installer**:
 
@@ -69,6 +69,12 @@ Kontrollen omfattar inte andra QGIS-installationer eller separat paketerade Brot
 
 För fristående QGIS-installationer och andra plattformar gäller [QGIS installations- och uppdateringsanvisningar](https://qgis.org/resources/installation-guide/).
 
+### Debian och Ubuntu
+
+Enligt [QGIS säkerhetsdokumentation](https://www.qgis.org/resources/support/security/) hanteras flera beroenden genom operativsystemets pakethanterare på Debian och Ubuntu.
+
+[Debian](https://security-tracker.debian.org/tracker/CVE-2026-111497) och [Ubuntu](https://ubuntu.com/security/CVE-2026-111497) har publicerat säkerhetsuppdateringar för Brotli som omfattar CVE-2026-111497. Följ säkerhetsinformationen för den aktuella distributionsversionen och kontrollera att relevanta uppdateringar är installerade. Rättningar kan ha införts i äldre paketversioner.
+
 ## Origo Server
 
 [Origo Servers källkod](https://github.com/origo-map/origo-server/blob/master/app.js) visar att servern använder Node.js och Express. Enligt [Express säkerhetsbesked](https://expressjs.com/en/blog/2026-10-31-security-releases/) kan dess standardfunktioner för inkommande HTTP-anrop använda Node.js Brotli-avkodare. Express rekommenderar att Node.js uppdateras för CVE-2026-111497.
@@ -83,7 +89,7 @@ För fristående QGIS-installationer och andra plattformar gäller [QGIS install
 
 Kontrollera vilken Node.js-version **Origo Server faktiskt kör**, uppdatera till en rättad och kompatibel version vid behov, starta om tjänsten och verifiera versionen efteråt. [Node.js-versioner som inte längre får säkerhetsuppdateringar](https://nodejs.org/en/about/eol) behöver ersättas med en stödd och rättad version. För containerbaserad drift gäller kontrollen Node.js i den körande containern.
 
-Uppgifterna ovan är dokumenterade komponentberoenden och rekommendationer från Node.js och Express, **inte ett separat säkerhetsbesked från Origo Server-projektet om exploaterbarhet**.
+Uppgifterna ovan bygger på Origo Servers dokumenterade beroenden samt säkerhetsbesked från Node.js och Express.
 
 ## Hajk
 
@@ -93,8 +99,8 @@ För installationer med backend: kontrollera vilken Node.js-version som faktiskt
 
 [Hajks säkerhetspolicy](https://github.com/hajkmap/Hajk/blob/master/SECURITY.md) anger att endast den senaste produktutgåvan får säkerhetsrättningar i projektets egen kod. Node.js-körmiljön hör till den driftmiljö som organisationen själv ansvarar för.
 
-Här redovisas ett dokumenterat Node.js-beroende, **inte en bekräftad produktspecifik exploaterbarhet eller en särskild Hajk-rättning för CVE-2026-111497**.
+Uppgifterna ovan bygger på Hajks dokumentation och Node.js-projektets säkerhetsbesked.
 
 ## Om informationen
 
-Vägledningen sammanställer leverantörernas publicerade besked och tydligt angivna komponentuppgifter. Den avgör inte om en enskild installation är exploaterbar och ersätter inte leverantörernas aktuella rekommendationer.
+Vägledningen sammanställer publicerade säkerhetsbesked och dokumenterade komponentuppgifter. Följ leverantörernas aktuella rekommendationer för produktspecifik information.
