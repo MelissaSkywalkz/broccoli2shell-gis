@@ -1,131 +1,91 @@
 # Kontroller och åtgärder
 
-**Uppdaterad: 6 november 2026** · [Till produktöversikten](README.md)
+**Lägesbild: 6 november 2026** · [Till produktöversikten](README.md)
 
-Den här sidan beskriver kontroller och åtgärder för Broccoli2Shell (CVE-2026-111497) per produkt. Källorna är leverantörernas säkerhetsbesked eller dokumenterade paket och beroenden. Paketuppgifter visar vilka komponenter som ingår, men bekräftar inte hur en viss produkt påverkas.
+Här redovisas källbelagd påverkan, tillgängliga rättningar och kontroller för olika installationsformer. **Rättningen kan levereras genom programmet, en separat körmiljö, ett operativsystemspaket eller en containeravbild. Ett separat säkerhetsbesked från GIS-projektet är inte en förutsättning för att en beroendeuppdatering ska finnas.** Felet gäller **uppackning** av Brotli: för att utlösa det behöver programmet behandla manipulerade, felaktigt formaterade Brotli-data från en källa som en angripare kan påverka, till exempel ett HTTP-svar eller en fil. Att en komponent har en sårbar version visar inte ensamt vilka sådana datavägar som finns i produkten eller att kodkörning har demonstrerats. En publicerad rättning är inte heller bevis för att den installerats eller används i drift.
 
-Välj produkt nedan. Varje avsnitt börjar med en kort beskrivning och vad som behöver kontrolleras. Om du inte sköter installationen själv kan du använda kontrollpunkterna som underlag för den som gör det. Tekniska detaljer finns längre ned i respektive avsnitt. Följ anvisningarna för den version och plattform som används. En version som saknas i en patchlista är inte därmed bekräftat opåverkad.
-
-Gå direkt till: [FME](#fme-form-och-flow) · [ArcGIS](#arcgis) · [QGIS/OSGeo4W](#qgis-och-osgeo4w) · [Origo Server](#origo-server) · [Hajk](#hajk) · [Pythonpaket](#pythonpaket-i-gis-miljöer)
+[FME](#fme-form-och-flow) · [ArcGIS](#arcgis) · [QGIS/OSGeo4W](#qgis-och-osgeo4w) · [Origo Server](#origo-server) · [Hajk](#hajk) · [Pythonpaket](#pythonpaket-i-gis-miljöer)
 
 ## FME Form och Flow
 
-Safe bekräftar påverkan för FME Engine, FME Form, FME Flow och FME Flow Hosted från **2024.2 till och med 2026.3**. Kontrollera vilken FME-version som används och följ Safes aktuella åtgärdsråd.
+**Bekräftad påverkan enligt Safe Software:** FME Engine, FME Form, FME Flow och FME Flow Hosted **2024.2–2026.3**. FME Flow berörs genom de FME Engines som kör arbetsytor; Safe anger att Flow-webbapplikationen inte använder Brotli och att FME inte levererar Node.js.
 
-**Källa:** [Safe Softwares säkerhetsbesked](https://support.safe.com/hc/en-us/articles/50040725669517-Brotli-Decoder-CVE-2026-111497-Is-FME-Impacted), kontrollerat 6 november 2026.
+**Källa:** [Safes säkerhetsbesked om CVE-2026-111497](https://support.safe.com/hc/en-us/articles/50040725669517-Brotli-Decoder-CVE-2026-111497-Is-FME-Impacted), kontrollerat 6 november 2026.
 
-### Kontroll och åtgärd
+### Vad kan beröras?
 
-Safe förbereder rättade byggen av **FME 2026.1, 2026.2 och 2026.3** med Brotli 1.2.1. Användare av äldre versioner rekommenderas att planera uppgradering till någon av dessa när rättade byggen finns. DuckDB har enligt Safe fått en rättning i projektet, men en utgiven version med rättningen saknades vid kontrollen.
+Safe anger att FME Workbench kan påverkas även utan en körande arbetsyta, genom förhandsvisning i HTTPCaller/OpenAPICaller och skapande eller förnyelse av vissa webbanslutningar. I FME Engine är möjliga vägar HTTPCaller/OpenAPICaller, tokenförnyelse, Parquet med Brotli-komprimerade kolumner samt DuckDB:s läsare och skrivare.
 
-I väntan på rättning rekommenderar Safe bland annat att:
+**Versionsavgränsning:** Safes sammanfattningstabell slutar vid **2026.3**, men artikelns detaljtext anger att **2024.2–2026.4 på Windows och macOS** innehåller Brotli `1.1.0`. Därför bör 2026.4 inte betraktas som opåverkad enbart för att den saknas i tabellen. Kontrollera aktuell versions- och bygginformation hos Safe.
 
-- använda HTTPCaller och webbanslutningar bara mot tjänster man litar på
-- läsa Parquet- och DuckDB-data bara från betrodda källor
-- undvika förhandsvisning av HTTP-anrop mot obetrodda adresser i Workbench
-- se över schemalagda eller automatiskt startade arbetsytor med externa HTTP-anrop eller externa Parquet- och DuckDB-data
-- där det är möjligt blockera Brotli-komprimerade svar till FME med proxy eller brandvägg
-- ansluta FME AI Assist bara till AI- och MCP-servrar man litar på.
+### Uppdatering och tillfälliga åtgärder
 
-En **FME Flow som bara nås internt** är enligt Safe skyddad mot angripare utanför nätverket, men arbetsytor som hämtar externa data kan ändå ta emot skadliga Brotli-data. För Linux och FME Flow Hosted gäller även de särskilda anvisningarna nedan.
+- **Windows och macOS:** Safe förbereder rättade FME-byggen för **2026.1, 2026.2 och 2026.3** med Brotli `1.2.1`. Tidigare versioner hänvisas till uppgradering när rättade byggen finns. Att uppdatera operativsystemets Brotli rättar inte den kopia som FME levererar här.
+- **Linux:** För HTTP-klienten och Parquet använder FME operativsystemets Brotli. Följ Linuxdistributionens säkerhetsuppdateringar. **DuckDB använder en egen kopia**, som kräver en FME-uppdatering. Safe anger att rättningen i DuckDB-projektet ännu inte ingick i någon utgiven version vid kontrollen.
+- **FME Flow Hosted:** Ubuntu-paketet uppdateras automatiskt på körande instanser, men Safe anger att **FME Flow behöver startas om eller instansen startas om** för att rättningen ska användas. Äldre Ubuntu än 22.04 behöver uppgraderas. **DuckDB kräver fortfarande en separat FME-rättning**.
 
-### Berörda funktioner och versionsuppgifter
-
-Safe skriver också att FME 2024.2–2026.4 på Windows och macOS innehåller Brotli 1.1.0. Det är en annan övre gräns än i artikelns uppgift om berörda versioner. Kontrollera därför exakt version och byggnummer i Safes artikel.
-
-Safe beskriver följande vägar till Brotli-avkodaren:
-
-- I Workbench kan förhandsvisning med HTTPCaller och OpenAPICaller samt skapande eller förnyelse av webbanslutningar med OAuth 2.0 eller tokenbaserad inloggning beröras. Det gäller även när ingen arbetsyta körs.
-- I FME Engine kan HTTPCaller och OpenAPICaller ta emot Brotli-komprimerade svar. Webbanslutningar som hämtar nya åtkomsttoken kan också beröras.
-- Parquet-filer med Brotli-komprimerade kolumner och DuckDB:s egen kopia av Brotli berörs.
-
-FME Flow berörs enligt Safe genom de FME Engines som kör arbetsytor. Safe anger att Flow-webbapplikationen och tjänsterna inte använder Brotli och att FME inte levererar Node.js.
-
-### Linux och FME Flow Hosted
-
-På **Linux** använder FME enligt Safe operativsystemets Brotli-bibliotek, utom i DuckDB. Safe rekommenderar att systemets Brotli-paket uppdateras. Distributioner kan ha rättat en äldre versionsgren; kontrollera distributionsbeskedet i stället för att enbart jämföra versionsnummer. Uppdateringen hanterar enligt Safe vägarna via HTTP-klienten och Parquet; DuckDB kräver FME-uppdateringen.
-
-För **FME Flow Hosted** anger Safe att Ubuntus säkerhetsuppdateringar installeras automatiskt på körande instanser, men att FME Flow eller instansen behöver startas om. Instanser med Ubuntu äldre än 22.04 behöver enligt Safe uppgraderas till en stödd version. Basavbildens innehåll och DuckDB behöver bedömas separat. Följ Safes plattformsspecifika anvisningar i säkerhetsbeskedet ovan.
-
-### Separat säkerhetsbesked från Safe
-
-Safe har också publicerat [FME November 2026 Security Updates](https://support.safe.com/hc/en-us/articles/46792031942029-FME-November-2026-Security-Updates). Det gäller andra sårbarheter i Safes egen kod och innehåller rättningar även för äldre FME-versioner. Dessa uppdateringar behöver kontrolleras och hanteras separat. En novemberpatch är inte i sig en bekräftad rättning av Broccoli2Shell (CVE-2026-111497).
+I väntan på rättning rekommenderar Safe att endast använda betrodda tjänster för HTTPCaller, OpenAPICaller och webbanslutningar, bara läsa Parquet- och DuckDB-data från betrodda källor samt undvika Workbench-förhandsvisning mot obetrodda adresser. Granska även schemalagda arbetsytor och begränsa där det är möjligt Brotli-komprimerade HTTP-svar till FME med proxy eller brandvägg. Intern åtkomst till Flow hindrar inte att en arbetsyta hämtar externa data.
 
 ## ArcGIS
 
-Esri bekräftar påverkan för **ArcGIS Enterprise** och **ArcGIS Pro 3.5 eller senare**. Kontrollera vilken produktversion som används och vilka produktpatchar och .NET-uppdateringar Esri rekommenderar. För ArcGIS Pro anger Esri att **patch ännu inväntas** den 6 november 2026. För **ArcGIS Online** anger Esri att begränsande åtgärder införts och att uppdateringar pågår.
+Esri bekräftar påverkan på **ArcGIS Enterprise** och **ArcGIS Pro 3.5 och senare**. Det krävs olika åtgärder för ArcGIS Server-patchen och de .NET-körmiljöer som Esri anger ska uppdateras separat.
 
-**Källor:** [Esris säkerhetsbesked](https://www.esri.com/arcgis-blog/products/trust-arcgis/administration/brotli-vulnerabilities-broccoli2shell), [Esris patchsida](https://support.esri.com/en-us/patches-updates/2026/arcgis-server-security-2026-update-4-patch) och [Microsofts .NET-besked](https://github.com/dotnet/announcements/issues/494). Esris besked, patchsida och Microsofts besked kontrollerades 6 november 2026.
+**Källor:** [Esris produktbesked, uppdaterat 5 november 2026](https://www.esri.com/arcgis-blog/products/trust-arcgis/administration/brotli-vulnerabilities-broccoli2shell), [ArcGIS Server Security 2026 Update 4 Patch, publicerad 5 november 2026](https://support.esri.com/en-us/patches-updates/2026/arcgis-server-security-2026-update-4-patch) och [Microsofts säkerhetsbesked](https://github.com/dotnet/announcements/issues/494).
 
-### Kontroll och åtgärd
+### ArcGIS Server – produktpatch
 
-Enligt Esri åtgärdar **ArcGIS Server Security 2026 Update 4 Patch** CVE-2026-111497 genom en uppdatering av Node.js (`BUG-000188308`). Esri listar ArcGIS Server `11.5`, `12.0` och `12.1`. Kontrollera på Esris patchsida ovan vilka nedladdningar som är tillgängliga för din version.
+Enligt Esris patchsida från **5 november** finns versionsanpassade nedladdningslänkar för **ArcGIS Server 11.5, 12.0 och 12.1**, på både **Windows och Linux**. Patchen åtgärdar `BUG-000188308` genom att uppdatera Node.js för CVE-2026-111497.
 
-Rättningen gäller ArcGIS Server, inte automatiskt andra delar av ArcGIS Enterprise. Följ Esris anvisningar för varje komponent. Esri rekommenderar att äldre versioner i livscykelfaserna Mature eller Retired uppgraderas.
+Installera rätt patch för **version och plattform** enligt [Esris installationsanvisningar](https://support.esri.com/en-us/patches-updates/2026/arcgis-server-security-2026-update-4-patch). Esri anger att ArcGIS Server-tjänsten stoppas och startas av patchinstallationen, att Linuxpatcharnas ordning spelar roll och att patchen ska installeras på varje berörd ArcGIS Server-installation. [PatchFinder](https://support.esri.com/en-us/patches-updates/2026/arcgis-server-security-2026-update-4-patch#how-to-identify-which-arcgis-products-are-installed) visar installerade produkter och patchar. En patch på en server bekräftar inte att andra servrar är uppdaterade.
 
-Esri rekommenderar också att **ArcGIS Enterprise SDK Custom Data Feeds** stängs av i väntan på relevant patch. Funktionen är enligt Esri avstängd som standard. Kontrollera även .NET-körmiljöerna som Esri anger behöver uppdateras separat, se avsnittet nedan.
+**ArcGIS Pro 3.5 och senare:** Påverkad, men patch inväntas enligt Esris produktbesked uppdaterat **5 november**. Kontrollera nyare status direkt hos Esri.
 
-### .NET och särskilda fall
+**Custom Data Feeds:** Esri anger att funktionen kan återaktiveras **efter att relevant ArcGIS Server-patch installerats**, om den tidigare stängts av som tillfällig åtgärd. Funktionen är enligt Esris tidigare besked avstängd som standard. Följ Esris anvisningar för den version som används.
 
-Esri anger att bland annat ArcGIS Pro, ArcGIS Web Adaptor för IIS och Enterprise SDK SOE/SOI använder .NET, som behöver uppdateras separat. Microsoft anger rättade .NET-versioner **`8.0.33`, `9.0.22` och `10.0.14`**. .NET Framework omfattas enligt Microsoft inte av denna sårbarhet.
+### .NET – separat uppdatering
 
-Enligt Microsoft kräver exponering att programmet packar upp angriparstyrda Brotli-data, exempelvis med `BrotliStream` eller särskilt aktiverad automatisk uppackning. Microsofts beskrivning gäller .NET generellt, inte inställningarna i varje ArcGIS-komponent. Följ Esris rekommendation om att uppdatera .NET.
+Esri anger att följande använder en **.NET-körmiljö som användaren uppdaterar separat**: **ArcGIS Pro**, **ArcGIS Enterprise Web Adaptor (IIS)**, **Enterprise SDK SOE/SOI** och **ArcGIS Cloud Builder**. Esri anger också att appar byggda med **ArcGIS Maps SDK for .NET 200.0 eller senare** för Windows eller Android kan beröras; för dessa är Esris åtgärd att uppdatera .NET och **bygga om appen**, inte att uppdatera SDK:t.
+
+Microsoft anger följande rättade .NET-versioner för CVE-2026-111497: **`8.0.33`, `9.0.22` och `10.0.14`**. [Microsofts besked](https://github.com/dotnet/announcements/issues/494) anger också att applikationer ska startas om efter uppdatering. Om en applikation distribuerats *self-contained* behöver den byggas om och distribueras igen med rättad körmiljö. Detta är en generell .NET-regel; kontrollera Esris råd för den konkreta produkten.
+
+Att en .NET-körmiljö finns installerad innebär inte i sig exploaterbarhet. Microsoft anger att programmet måste behandla angriparstyrda Brotli-data genom den berörda avkodningen.
 
 ## QGIS och OSGeo4W
 
-Börja med att kontrollera hur QGIS är installerat. För QGIS via OSGeo4W på Windows finns ett uppdaterat Brotli-paket att kontrollera. På Debian och Ubuntu gäller distributionens säkerhetsuppdateringar.
+QGIS-miljöer har **dokumenterade beroenden till Brotli**, bland annat via curl (HTTP) och libjxl (JPEG XL) i OSGeo4W. **QGIS-projektet underhåller själv Windowsdistributionen via OSGeo4W**, där en rättad Brotli-version finns tillgänglig. På Ubuntu/Debian hanteras säkerhetsuppdateringar av systembibliotek genom respektive Linuxdistribution. QGIS beskriver denna ansvarsfördelning på sin säkerhetssida. **Kontrollera och uppdatera de beroendepaket som den aktuella installationen använder.**
 
-Vi har inte hittat något QGIS- eller OSGeo4W-specifikt säkerhetsbesked om denna CVE. Uppgifterna bygger på paket- och beroendeinformation, inte på bekräftad påverkan från QGIS-projektet.
+**Källor:** [QGIS säkerhetsinformation](https://www.qgis.org/resources/support/security/), [OSGeo4W:s curl-byggskript](https://github.com/jef-n/OSGeo4W/blob/c8514a953de4b50a6dd4887fb02a874c8d74eec9/src/curl/osgeo4w/package.sh), [libjxl-byggskript](https://github.com/jef-n/OSGeo4W/blob/c8514a953de4b50a6dd4887fb02a874c8d74eec9/src/libjxl/osgeo4w/package.sh), [OSGeo4W:s paketregister](https://download.osgeo.org/osgeo4w/v2/x86_64/setup.ini.bz2), [Debians säkerhetsspårning](https://security-tracker.debian.org/tracker/CVE-2026-111497) och [Ubuntus säkerhetsbesked](https://ubuntu.com/security/CVE-2026-111497).
 
-**Källor:** [QGIS säkerhetssida](https://www.qgis.org/resources/support/security/), [OSGeo4W:s paketregister](https://download.osgeo.org/osgeo4w/v2/x86_64/setup.ini.bz2), [OSGeo4W:s byggskript](https://github.com/jef-n/OSGeo4W/tree/c8514a953de4b50a6dd4887fb02a874c8d74eec9/src), [Debian](https://security-tracker.debian.org/tracker/CVE-2026-111497) och [Ubuntu](https://ubuntu.com/security/CVE-2026-111497). Paketregistret kontrollerades 5 november, övriga underlag 6 november 2026.
+### Windows
 
-### Kontroll och åtgärd på Windows
+I QGIS-projektets Windowsmiljö **OSGeo4W** erbjöds det rättade Brotli-paketet **`1.2.1-1`** vid kontrollen av paketregistret den **5 november 2026**. OSGeo4W kan uppdatera enskilda bibliotek utan att hela QGIS behöver installeras om. Kontrollera vilken OSGeo4W-installation som används och uppdatera relevanta paket enligt [QGIS säkerhetsanvisningar](https://www.qgis.org/resources/support/security/) och [OSGeo4W:s dokumentation](https://trac.osgeo.org/osgeo4w/). Paketregistret visar vad som **erbjuds**, inte vad som redan har installerats eller används av en körande process.
 
-OSGeo4W:s paketregister erbjuder det rättade paketet `brotli` `1.2.1-1`.
+QGIS erbjuder också **fristående Windows-installerare**. Följ [QGIS installationsanvisningar](https://qgis.org/download/) för rätt installationsform; det går inte att fastställa den fristående installationens Brotli-status från OSGeo4W:s paketregister.
 
-För installationer som hanteras av **OSGeo4W Network Installer**:
+### Linux
 
-1. Stäng QGIS och öppna installeraren med `Advanced Install`.
-2. Kontrollera installationskatalogen och sök efter paketet `brotli`.
-3. Uppdatera till `1.2.1-1` eller en senare rättad version vid behov.
-4. Kontrollera paketversionen och testa QGIS efter uppdateringen.
+För Debian och Ubuntu tillhandahålls rättningen via **distributionernas egna säkerhetsuppdateringar**, enligt QGIS-projektets anvisningar för systemberoenden. Följande Brotli-paket anges som rättade av respektive distribution:
 
-Frivillig kontroll i **OSGeo4W Shell** för den installation som ska granskas:
-
-```cmd
-findstr /B /I /C:"brotli " "%OSGEO4W_ROOT%\etc\setup\installed.db"
-```
-
-Kommandot visar Brotli-paketets installerade version enligt OSGeo4W:s register och ändrar ingenting. Det funktionstestades lokalt den 4 november 2026. Kontrollen visar inte vilken Brotli-fil andra bibliotek läser in eller vad andra QGIS-installationer innehåller.
-
-För fristående QGIS-installationer och andra plattformar, följ [QGIS installations- och uppdateringsanvisningar](https://qgis.org/resources/installation-guide/).
-
-### Kontroll och åtgärd på Debian och Ubuntu
-
-QGIS hänvisar till distributionens pakethanterare för beroenden på Debian och Ubuntu. Uppdatera relevanta paket enligt distributionens instruktioner. Säkerhetsrättningar kan ha förts in i äldre grundversioner:
-
-| Distribution | Rättad paketversion |
+| Distribution | Rättat Brotli-paket enligt distributionen |
 | --- | --- |
 | Debian 12 | `1.0.9-2+deb12u1` |
 | Debian 13 | `1.1.0-2+deb13u1` |
 | Ubuntu 22.04 LTS | `1.0.9-2ubuntu0.1` |
 | Ubuntu 24.04 LTS | `1.1.0-2ubuntu0.1` |
 
-För Ubuntu 20.04 och äldre anger Ubuntu att säkerhetsrättningen för relevanta paket kan kräva Ubuntu Pro. Kontrollera paketstatus för den version som används.
+Uppdatera via distributionens säkerhetsuppdateringar och kontrollera installerat paket. En rättad systemversion verifierar inte eventuella bibliotek som ett program distribuerar separat.
 
-### Tekniska beroenden i OSGeo4W
+### 3liz QGIS Server – konkret paketkorrigering
 
-OSGeo4W:s byggskript vid commit `c8514a9` anger `brotli` som körberoende för Arrow, som GDAL använder för Parquet, och för libjxl (JPEG XL). Arrow byggs med systemets Brotli, och för libjxl anges `JPEGXL_FORCE_SYSTEM_BROTLI=ON`. Skripten beskriver byggkonfigurationen vid den commiten, inte vilka filer en viss installation innehåller.
+I [3liz/py-qgis-server ärende #137](https://github.com/3liz/py-qgis-server/issues/137) rapporteras att containeravbilden `3liz/qgis-map-server:4.2.2-1.9.7` hade ett Brotli-paket utan Debians säkerhetsrättning. Rapportören beskriver även att `libcurl` och Qt:s nätverksbibliotek är länkade mot Brotli-avkodaren och pekar på externa WMS/WFS-svar som en möjlig dataväg. En [projektföreträdare bekräftar](https://github.com/3liz/py-qgis-server/issues/137#issuecomment-6437344689) att avbilden ersattes av `4.2.3-1.9.7` med rättat `libbrotli1`. Det är en dokumenterad paketkorrigering i denna distribution, **inte ett demonstrerat utnyttjande av CVE:n eller en bedömning av alla QGIS Server-installationer**. Kontrollera att en uppdaterad avbild verkligen används av den körande containern.
 
 ## Origo Server
 
-Origo Server använder Node.js, som har fått säkerhetsrättningar för sårbarheten. Kontrollera vilken Node.js-version tjänsten kör och uppdatera vid behov. Kopplingen bygger på projektets källkod och säkerhetsbesked för dess komponenter, inte på ett separat säkerhetsbesked från Origo-projektet.
+Origo Servers [installationsanvisning](https://github.com/origo-map/origo-server) kräver Node.js och beskriver både manuell start och Windows-tjänst. Vid [granskad kodrevision `bacabe4`](https://github.com/origo-map/origo-server/blob/bacabe4b02611e8cbabf49daf57fe3d220f2e169/app.js) använder servern `express.json()` och `express.urlencoded()`. [Express beskriver](https://expressjs.com/en/blog/2026-10-31-security-releases/#a-note-on-brotli-decompression-cve-2026-111497) att dessa som standard kan avkoda förfrågningar med `Content-Encoding: br` genom Node.js:s Brotli-avkodare. **Det visar en möjlig kodväg, inte bekräftad påverkan i en viss Origo-installation.**
 
-**Källor:** [Origo Servers källkod](https://github.com/origo-map/origo-server), [Express säkerhetsbesked](https://expressjs.com/en/blog/2026-10-31-security-releases/#a-note-on-brotli-decompression-cve-2026-111497) och [Node.js säkerhetsrelease](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases). Kontrollerat 6 november 2026.
+### Kontrollera Node.js
 
-### Kontroll och uppdatering av Node.js
-
-**Första rättade Node.js-versioner** enligt Node.js-projektet:
+Enligt [Node.js-projektets säkerhetsrelease den 21 oktober](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases) är de första rättade versionerna:
 
 | Versionsgren | Första rättade version |
 | --- | --- |
@@ -133,85 +93,70 @@ Origo Server använder Node.js, som har fått säkerhetsrättningar för sårbar
 | `24.x` | `24.22.1` |
 | `26.x` | `26.12.1` |
 
-1. Kontrollera vilken Node.js-installation **Origo Server-tjänsten faktiskt använder**, exempelvis med `node --version` i motsvarande miljö.
-2. Kontrollera hur Node.js distribueras. Officiella Node.js-byggen och Linuxdistributionernas Node.js-paket kan använda Brotli på olika sätt. Följ distributionens säkerhetsbesked för **både Node.js och Brotli** där sådana paket används.
-3. Uppdatera till en rättad och kompatibel version enligt aktuell leverantörs- eller distributionsinformation.
-4. Starta om tjänsten eller skapa om containern från en uppdaterad avbild. Kontrollera sedan den version som faktiskt körs.
+Äldre och utgångna Node.js-grenar, till exempel **20.x**, får inte dessa rättningar från Node.js-projektet. Följ [projektets supportstatus](https://nodejs.org/en/about/eol) och välj en stödd, kompatibel version.
 
-För Node.js-versioner utanför support, se [Node.js EOL-information](https://nodejs.org/en/about/eol). Express beskriver en tillfällig spärr för inkommande Brotli-förfrågningar när Node.js inte kan uppdateras och applikationen inte behöver sådana förfrågningar. Spärren skyddar inte utgående HTTP-anrop och ersätter inte en uppdatering.
+**Välj rätt uppdateringsväg:** Dessa versionsnummer gäller Node.js-projektets utgåvor. [Debian](https://security-tracker.debian.org/tracker/CVE-2026-111497) anger att dess Node.js-paket använder systemets Brotli. [Red Hat](https://access.redhat.com/security/cve/cve-2026-111497) beskriver skillnader mellan RHEL-versioner och Node.js-paket: vissa använder systembiblioteket, andra en inbyggd kopia. Kontrollera därför Node.js **och relevant Brotli-paket** mot den aktuella distributionens säkerhetsbesked.
 
-### Tekniska belägg och avgränsningar
+### Kontrollera den körmiljö som Origo använder
 
-Vid [Origo Server-commit `bacabe4`](https://github.com/origo-map/origo-server/blob/bacabe4b02611e8cbabf49daf57fe3d220f2e169/package.json) anges Express `^5.2.1`. [app.js](https://github.com/origo-map/origo-server/blob/bacabe4b02611e8cbabf49daf57fe3d220f2e169/app.js) använder `express.json()` och `express.urlencoded()` utan ändrad inställning för uppackning.
+Om Origo Server körs som Windows-tjänst, identifiera **den Node.js-process som hör till tjänsten** och dess körfil. Exempel på en **läsande fråga** i PowerShell, baserad på [Microsofts `Win32_Process`-dokumentation](https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-process):
 
-Express anger att standardinställningarna kan packa upp förfrågningar med `Content-Encoding: br`. Node.js beskriver möjliga följder när en angripare kan tillföra data till avkodaren: krasch, röjt minnesinnehåll och kodkörning. En installerad Origo Server kan skilja sig från den granskade koden.
+```powershell
+Get-CimInstance Win32_Process -Filter "Name = 'node.exe'" |
+  Select-Object ProcessId, CreationDate, ExecutablePath, CommandLine
+```
+
+Identifiera rätt `ProcessId` via tjänstens startkonfiguration och kommandoraden. Kontrollera sedan versionen på **just den körfilen**; ersätt `1234` med processens ID:
+
+```powershell
+$p = Get-CimInstance Win32_Process -Filter "ProcessId = 1234"
+& $p.ExecutablePath --version
+```
+
+**Begränsning:** Kommandot startar en ny process och visar **filens version på disk**. Det bevisar inte vilken version en redan körande process laddade vid sin start. Uppdatera enligt distributionsanvisningen, **starta om Origo Server** och identifiera sedan den **nya** processen och dess körfil igen. Om sökvägen inte kan läsas eller processen inte kan kopplas till Origo Server är kontrollen inte slutförd. Kommandot har granskats mot dokumentation men inte funktionstestats på en Origo Server-installation.
 
 ## Hajk
 
-Hajks zipfiler innehåller ingen Node.js-runtime, bara statiska JS-filer. Den som driftar Hajk från zipfil ansvarar själv för att hålla driftmiljön, inklusive Node.js, uppdaterad. Hajks Docker-avbilder innehåller däremot en Node.js-runtime. Där rekommenderar projektet avbilden `nightly-master`.
+Enligt [Hajks release-dokumentation](https://github.com/hajkmap/Hajk/blob/master/docs/releases.md) finns följande distributionsformer:
 
-**Källor:** [Hajks releases-dokumentation](https://github.com/hajkmap/Hajk/blob/master/docs/releases.md), [säkerhetspolicy](https://github.com/hajkmap/Hajk/blob/master/SECURITY.md), [Dockerfile](https://github.com/hajkmap/Hajk/blob/badc79df70407a95669aed59c8632f9b3419185d/Dockerfile) och [Node.js säkerhetsrelease](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases). Kontrollerat 6 november 2026.
-
-### Kontrollera distributionsform
-
-| Paket eller avbild | Innehåll och Node.js-runtime |
+| Paket eller avbild | Vad innehåller det vid drift? |
 | --- | --- |
-| `hajk-vX.Y.Z-nodejs.zip` | Backend, klient och admin som JS-filer; ingen Node.js-runtime, den tillhandahålls av driftmiljön |
-| `hajk-vX.Y.Z-simple.zip` | Endast statiska klientfiler; ingen Node.js-runtime och ingen backend |
-| `ghcr.io/hajkmap/hajk` | Fullständig avbild med backend och Node.js-runtime |
-| `ghcr.io/hajkmap/hajk-simple` | Statiska klientfiler via nginx; ingen Node.js-backend |
+| `hajk-vX.Y.Z-nodejs.zip` | Backend, klient och admin; **Node.js-körmiljön ingår inte** |
+| `hajk-vX.Y.Z-simple.zip` | Endast statiska klientfiler, utan backend |
+| `ghcr.io/hajkmap/hajk` | Fullständig Docker-avbild med Node.js-backend och körmiljö |
+| `ghcr.io/hajkmap/hajk-simple` | Statiska klientfiler via nginx, **ingen Node.js-körmiljö i driftavbilden** |
 
-### Kontroll och uppdatering av Hajk
+**ZIP med backend:** Kontrollera och uppdatera Node.js **separat** i den miljö där backend körs. Se [Node.js-versioner och distributionsskillnader](#kontrollera-nodejs). Att ersätta ZIP-paketet uppdaterar inte automatiskt Node.js-körmiljön.
 
-För zip-installation med backend: Node.js ingår inte i zipfilen utan tillhandahålls av driftmiljön, som de driftansvariga håller uppdaterad. Kontrollera Node.js-versionen, uppdatera vid behov enligt [tabellen över rättade Node.js-versioner](#kontroll-och-uppdatering-av-nodejs), starta om backend och verifiera versionen.
+**Officiell Docker:** Enligt [Hajks säkerhetspolicy](https://github.com/hajkmap/Hajk/blob/master/SECURITY.md#official-docker-images) byggs vanliga releaseavbilder en gång. `nightly-master` bygger om den senaste releasen varje natt med en aktuell grundavbild för att få med Node.js- och OS-rättningar mellan Hajk-releaser. Hajk beskriver också versionsserietaggar för produktion. Välj rätt avbild och tagg enligt [projektets anvisningar](https://github.com/hajkmap/Hajk/blob/master/docs/releases.md), hämta uppdaterad avbild och återskapa containern. Kontrollera efteråt vilken avbild och Node.js-version som faktiskt körs. För `hajk-simple` gäller ingen Node.js-backend vid drift.
 
-För Docker-installationer: kontrollera vilken avbild och tagg som används. Hajks [versionsanvisningar](https://github.com/hajkmap/Hajk/blob/master/docs/releases.md) beskriver de officiella avbilderna och hur de uppdateras. Releaseavbilder byggs en gång och byggs inte om. Projektet rekommenderar därför `nightly-master`, som är den senaste officiella releasen (4.3.0) byggd om varje natt med de senaste paketen i grundavbilden. Se [Official Docker images](https://github.com/hajkmap/Hajk/blob/master/SECURITY.md#official-docker-images) i Hajks säkerhetspolicy.
-
-Se [Hajks paketregister](https://github.com/hajkmap/Hajk/pkgs/container/hajk) för avbilder och taggar. Kontrollera vilken Node.js-version den avbild som används faktiskt innehåller och jämför med [rättade Node.js-versioner](#kontroll-och-uppdatering-av-nodejs). Följ Hajks anvisningar vid uppdatering. En redan körande container behöver återskapas från den uppdaterade avbilden.
-
-### Teknisk bakgrund
-
-För `hajk-simple` används Node.js enligt [Dockerfile.simple](https://github.com/hajkmap/Hajk/blob/badc79df70407a95669aed59c8632f9b3419185d/Docker/Dockerfile.simple) när avbilden byggs, men inte i den färdiga avbildens driftmiljö. Kontrollera byggmiljön separat.
-
-Hajks backend anger Express `^5.2.1` och använder `Express.json()` och `Express.urlencoded()` vid [commit `badc79d`](https://github.com/hajkmap/Hajk/blob/badc79df70407a95669aed59c8632f9b3419185d/apps/backend/package.json). Express beskriver hur dessa funktioner kan använda Node.js:s Brotli-avkodare, se [Origo Servers tekniska belägg](#tekniska-belägg-och-avgränsningar).
+**Versionsstöd:** Hajk ger säkerhetsrättningar endast till den senaste releasen. Äldre versionsserier får inga nya rättningar när en ny release har kommit; uppgradera då till den senaste releasen. [Hajks säkerhetspolicy](https://github.com/hajkmap/Hajk/blob/master/SECURITY.md#supported-versions).
 
 ## Pythonpaket i GIS-miljöer
 
-QGIS, ArcGIS Pro och andra GIS-program kan innehålla egna Pythonmiljöer även om du inte använder Python själv. Den som hanterar miljön behöver kontrollera om de berörda paketen finns installerade. Använd kontrollkommandona nedan i rätt Pythonmiljö.
+GitHubs [säkerhetsråd för CVE-2026-111497](https://github.com/advisories/GHSA-9v8h-qqgm-4m35) anger följande rättade **PyPI-paket**:
 
-**Källor:** [GitHubs säkerhetsråd](https://github.com/advisories/GHSA-9v8h-qqgm-4m35), [urllib3:s källkod](https://github.com/urllib3/urllib3/blob/c5347bbd39203d68d7b0e3ffb83ced3e3b4b9109/src/urllib3/util/request.py), [Apache Arrows releasebesked](https://arrow.apache.org/blog/2026/11/03/26.0.1-release/), [Esris Python-dokumentation](https://pro.arcgis.com/en/pro-app/3.6/arcpy/get-started/what-is-conda.htm) och [Esris paketkanal](https://anaconda.org/esri/libbrotlidec). Kontrollerat 6 november 2026.
-
-### Kontroll och åtgärd
-
-| Paket | Berörda versioner enligt GitHubs säkerhetsråd | Rättad version |
+| Paket | Berörda versioner | Rättad version |
 | --- | --- | --- |
-| `Brotli` | Från `1.0.3` till före `1.2.1` | `1.2.1` |
-| `brotlicffi` | Från `1.0.3` till före `1.2.1.0` | `1.2.1.0` |
+| `Brotli` | `>=1.0.3`, `<1.2.1` | `1.2.1` |
+| `brotlicffi` | `>=1.0.3`, `<1.2.1.0` | `1.2.1.0` |
 
-Kontrollera **den Pythonmiljö som GIS-programmet faktiskt använder**, inte bara den Python som ligger först i systemets `PATH`.
+Kontrollera **den Pythonmiljö som GIS-programmet använder**. En systeminstallerad Python kan skilja sig från programmets miljö. För QGIS via OSGeo4W används den aktuella installationens OSGeo4W Shell; ArcGIS Pro har en [Python Command Prompt och conda-miljöer](https://pro.arcgis.com/en/pro-app/3.6/arcpy/get-started/what-is-conda.htm). Följ Esris anvisningar om klonade miljöer i stället för att ändra ArcGIS Pros standardmiljö direkt.
 
-- **QGIS via OSGeo4W på Windows:** Öppna OSGeo4W Shell för den aktuella QGIS-installationen och kör kommandot nedan.
-- **ArcGIS Pro på Windows:** Öppna **Python Command Prompt** för den aktiva ArcGIS Pro-miljön. Kontrollera först vilken conda-miljö som är aktiv och kör sedan båda kommandona nedan.
-- **Andra Pythonmiljöer:** Aktivera den miljö som ska granskas innan kommandot körs.
+I den aktuella Pythonmiljön kan installerade Pythonpaket listas utan att ändras:
 
 ```cmd
 python -m pip show Brotli brotlicffi pyarrow
 ```
 
-För ArcGIS Pro, kontrollera även paket som installerats med conda:
+För en ArcGIS Pro-miljö som använder conda kan även conda-installerade paket kontrolleras med ett [dokumenterat namnfilter](https://docs.conda.io/projects/conda/en/stable/commands/list.html):
 
 ```cmd
-conda list brotli
+conda list "brotli|pyarrow"
 ```
 
-`conda list brotli` visar paket vars namn innehåller `brotli`, även C-bibliotek som `libbrotlidec` i [Esris paketkanal](https://anaconda.org/esri/libbrotlidec). `pip show` visar inte alla conda-paket. Kommandona ändrar inget och visar paketversioner, inte vilken avkodare ett program faktiskt använder. Följ Esris anvisningar för ändringar i ArcGIS Pro-miljön. Paket från Linuxdistributionen kan ha rättningar som inte syns i grundversionsnumret; följ då distributionsbeskedet.
+Kommandona visar paketversioner **men verifierar inte vilken Brotli-avkodare applikationen faktiskt använder**. Uppdatera enligt distributions- eller produktanvisningarna.
 
-### pyarrow och Apache Arrow
+### PyArrow
 
-[Apache Arrow](https://arrow.apache.org/blog/2026/11/03/26.0.1-release/) bekräftar att sårbarheten berörde PyArrow-hjul (förbyggda Pythonpaket). **PyArrow 26.0.1** innehåller en rättad version av den medföljande Brotli-koden. För en berörd PyArrow-installation från PyPI är 26.0.1 därför rättad version. Kontrollera versionen med kommandot ovan och uppdatera enligt paketets anvisningar vid behov.
-
-Andra distributioner kan använda systemets Brotli i stället för en inbyggd kopia. För pyarrow i OSGeo4W, se [QGIS och OSGeo4W](#qgis-och-osgeo4w).
-
-### Varför Pythonpaket kan beröras
-
-När `Brotli` eller `brotlicffi` är installerat kan urllib3 enligt källkoden begära Brotli-komprimerade HTTP-svar. Även program som använder urllib3, exempelvis `requests`, kan beröras. Den faktiska exponeringen beror på vilka data programmet behandlar.
+[Apache Arrow bekräftar](https://arrow.apache.org/blog/2026/11/03/26.0.1-release/) att sårbarheten berörde Brotli-koden i förbyggda **PyArrow-hjul**. **PyArrow 26.0.1**, publicerad **3 november 2026**, innehåller en rättad medföljande Brotli-version. Andra distributioner kan paketera biblioteken annorlunda; kontrollera paketkällan innan uppdatering.
