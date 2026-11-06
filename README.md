@@ -51,3 +51,7 @@ Detta är en fristående sammanställning med fokus på GIS. Den representerar i
 Sammanställningen skiljer mellan leverantörernas säkerhetsbesked och dokumenterade beroenden eller paketuppdateringar. Följ originalkällorna för produktspecifik information.
 
 Rättelser kan följas i Git-historiken. Har du en relevant officiell källa eller rättelse? Öppna gärna ett [GitHub Issue](https://github.com/MelissaSkywalkz/broccoli2shell-gis/issues). Publicera inte interna systemuppgifter, känsliga loggar eller uppgifter om enskilda installationers säkerhet.
+
+## Licens
+
+Vägledningens originalinnehåll är licensierat under [Creative Commons Erkännande 4.0 Internationell (CC BY 4.0)](LICENSE). Licensen omfattar inte material från externa källor.
