@@ -148,24 +148,24 @@ Express anger att standardinställningarna kan packa upp förfrågningar med `Co
 
 ## Hajk
 
-Hajk finns med eller utan en serverdel som kör Node.js. Kontrollera vilken variant som används. Om serverdelen ingår behöver Node.js-versionen kontrolleras. Simple Edition saknar den serverdelen vid drift.
+Hajks zipfiler innehåller ingen Node.js-runtime, bara statiska JS-filer. Den som driftar Hajk från zipfil ansvarar själv för att hålla driftmiljön, inklusive Node.js, uppdaterad. Hajks Docker-avbilder innehåller däremot en Node.js-runtime. Där rekommenderar projektet avbilden `nightly-master`.
 
 **Källor:** [Hajks releases-dokumentation](https://github.com/hajkmap/Hajk/blob/master/docs/releases.md), [säkerhetspolicy](https://github.com/hajkmap/Hajk/blob/master/SECURITY.md), [Dockerfile](https://github.com/hajkmap/Hajk/blob/badc79df70407a95669aed59c8632f9b3419185d/Dockerfile) och [Node.js säkerhetsrelease](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases). Kontrollerat 6 november 2026.
 
 ### Kontrollera distributionsform
 
-| Paket eller avbild | Node.js vid drift enligt Hajks dokumentation |
+| Paket eller avbild | Innehåll och Node.js-runtime |
 | --- | --- |
-| `hajk-vX.Y.Z-nodejs.zip` | Backend, klient och admin; Node.js-backend |
-| `hajk-vX.Y.Z-simple.zip` | Endast statiska klientfiler; ingen Node.js-backend |
-| `ghcr.io/hajkmap/hajk` | Fullständig avbild med Node.js-backend |
+| `hajk-vX.Y.Z-nodejs.zip` | Backend, klient och admin som JS-filer; ingen Node.js-runtime, den tillhandahålls av driftmiljön |
+| `hajk-vX.Y.Z-simple.zip` | Endast statiska klientfiler; ingen Node.js-runtime och ingen backend |
+| `ghcr.io/hajkmap/hajk` | Fullständig avbild med backend och Node.js-runtime |
 | `ghcr.io/hajkmap/hajk-simple` | Statiska klientfiler via nginx; ingen Node.js-backend |
 
 ### Kontroll och uppdatering av Hajk
 
-För zip-installation med backend: kontrollera Node.js-versionen, uppdatera vid behov enligt [tabellen över rättade Node.js-versioner](#kontroll-och-uppdatering-av-nodejs), starta om backend och verifiera versionen.
+För zip-installation med backend: Node.js ingår inte i zipfilen utan tillhandahålls av driftmiljön, som de driftansvariga håller uppdaterad. Kontrollera Node.js-versionen, uppdatera vid behov enligt [tabellen över rättade Node.js-versioner](#kontroll-och-uppdatering-av-nodejs), starta om backend och verifiera versionen.
 
-För Docker-installationer: kontrollera vilken avbild och tagg som används. Hajks [versionsanvisningar](https://github.com/hajkmap/Hajk/blob/master/docs/releases.md) beskriver de officiella avbilderna och hur de uppdateras. Enligt projektet byggs releaseavbilder en gång, medan `nightly-master` byggs om varje natt med en aktuell grundavbild. Det fastställer inte vilken Node.js-version en viss publicerad avbild innehåller.
+För Docker-installationer: kontrollera vilken avbild och tagg som används. Hajks [versionsanvisningar](https://github.com/hajkmap/Hajk/blob/master/docs/releases.md) beskriver de officiella avbilderna och hur de uppdateras. Releaseavbilder byggs en gång och byggs inte om. Projektet rekommenderar därför `nightly-master`, som är den senaste officiella releasen (4.3.0) byggd om varje natt med de senaste paketen i grundavbilden. Se [Official Docker images](https://github.com/hajkmap/Hajk/blob/master/SECURITY.md#official-docker-images) i Hajks säkerhetspolicy.
 
 Se [Hajks paketregister](https://github.com/hajkmap/Hajk/pkgs/container/hajk) för avbilder och taggar. Kontrollera vilken Node.js-version den avbild som används faktiskt innehåller och jämför med [rättade Node.js-versioner](#kontroll-och-uppdatering-av-nodejs). Följ Hajks anvisningar vid uppdatering. En redan körande container behöver återskapas från den uppdaterade avbilden.
 
