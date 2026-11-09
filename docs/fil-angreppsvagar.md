@@ -1,4 +1,4 @@
-# Filer, GeoParquet och social engineering – när når importdata avkodaren?
+# Filer, GeoParquet och social engineering: när når importdata avkodaren?
 
 **Kontrollerat: 8 november 2026.** [Översikt](../README.md) · [Skydd](skydd.md)
 

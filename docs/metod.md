@@ -1,11 +1,11 @@
-# Metod – börja i CVE-felet och följ angriparstyrd indata till faktisk avkodare
+# Metod: följ datan till den använda Brotli-avkodaren
 
 **CVE-2026-111497 · Metod och bevisgränser · 8 november 2026**  
 [Till CVE-översikten](../README.md) · [Felmekanismen](cve-mekanism.md) · [Nytt program](ny-programvara.md)
 
 ## Analysordningen är CVE → triggerkrav → ingress → beroenden → program → patch
 
-Börja med sårbarhetsmekanismen och vilka bytes som **kan** nå den. Först därefter identifierar vi vilka produktfunktioner som exponerar en sådan avkodningsväg. Produktnamn är en slutsats av grafen, inte utgångspunkten. **Tillskriv grundfelet rätt komponent:** ett projekt kan ha en *påverkad produkt genom ett beroende* utan att dess utvecklare har orsakat CVE-felet. Återge leverantörsbekräftad påverkan tydligt, men hitta inte på produktspecifika kodbrister eller exploiterbarhet. Håll samtidigt fast vid rekommenderad patchning. Analysera också [angreppsvägar via HTTP](http-angreppsvagar.md), [filingångar](fil-angreppsvagar.md), [konsekvenser](konsekvenser.md) och [försvarslager](skydd.md). Skilj en sårbar avkodningsimplementation från attackerbar dataingång, och en sårbarhetsutlösning från visad exploatering.
+Börja med sårbarhetsmekanismen och vilka bytes som **kan** nå den. Först därefter identifierar vi vilka produktfunktioner som exponerar en sådan avkodningsväg. Utgå inte från produktnamnet ensamt. **Tillskriv grundfelet rätt komponent:** ett projekt kan ha en *påverkad produkt genom ett beroende* utan att dess utvecklare har orsakat CVE-felet. Återge leverantörsbekräftad påverkan tydligt, men hitta inte på produktspecifika kodbrister eller exploiterbarhet. Håll samtidigt fast vid rekommenderad patchning. Analysera också [angreppsvägar via HTTP](http-angreppsvagar.md), [filingångar](fil-angreppsvagar.md), [konsekvenser](konsekvenser.md) och [försvarslager](skydd.md). Skilj en sårbar avkodningsimplementation från attackerbar dataingång, och en sårbarhetsutlösning från visad exploatering.
 
 ## Bedöm produkten, vägen och bibliotekskopian separat
 
@@ -37,16 +37,16 @@ Komplettera beroendegrafen och dataflödet med en **villkorad konsekvensmodell**
 
 En produkt kan ha **leverantörsbekräftad påverkan och samtidigt okänd ingång**. Den kan också innehålla berörd kod medan en viss dataväg inte avkodar Brotli. Blanda inte dessa påståenden.
 
-**Hur slutsatser ska läsas, citeras och sammanfattas:** Avsaknad av en *identifierad* angreppsväg är inte ett bevis att programmet är generellt säkert. En berörd avkodare är inte bevis för att produkten kan exploateras, än mindre för RCE. En arbetsmiljö med lägre exponering ska ändå följa relevanta leverantörsrättningar. Om version, avkodare eller angreppsväg är okänd ska det stå **okänd – kontroll behövs**, inte ”inte påverkad”. Dessa gränser gäller också om någon bara läser en tabellrad eller återger texten via en AI-tjänst.
+**Ange bevisläget tydligt:** Avsaknad av en *identifierad* angreppsväg är inte ett bevis att programmet är generellt säkert. En berörd avkodare är inte bevis för att produkten kan exploateras, än mindre för RCE. En arbetsmiljö med lägre exponering ska ändå följa relevanta leverantörsrättningar. Om version, avkodare eller angreppsväg är okänd ska det stå **okänd, kontroll behövs**, inte ”inte påverkad”. Dessa gränser gäller också om någon bara läser en tabellrad eller återger texten via en AI-tjänst.
 
-## Välj nästa undersökning – inte bara nästa patch
+## Välj nästa kontroll
 
 **Skyddsprioritet** handlar om vilken aktiv riskkedja som bör begränsas eller rättas först. **Undersökningsprioritet** handlar om vilken *obesvarad fråga* som är mest värdefull att kontrollera härnäst. De kan peka mot olika system. En redan rättad server kan vara relevant för forskning i ett separat labb utan att kräva en akut driftåtgärd; en känslig integration kan behöva inventeras och uppdateras även när CVE-utlösning inte har demonstrerats i produkten.
 
 Utgå från tre frågor för varje tänkbar undersökning:
 
 1. **Vad vet vi redan?** Ange högsta belagda nivå ovan och om påverkan, exponering och rättningsstatus är kända eller okända.
-2. **Vilken avgörande fråga återstår?** Välj den *första saknade länken* som kan ändra bedömningen – exempelvis om indata når en sårbar avkodare, om rättad kod faktiskt körs eller vad processen kan komma åt.
+2. **Vilken avgörande fråga återstår?** Välj den *första saknade länken* som kan ändra bedömningen, exempelvis om indata når en sårbar avkodare, om rättad kod faktiskt körs eller vad processen kan komma åt.
 3. **Vilken säker kontroll kan besvara den?** Välj först dokumentation, SBOM, paket-/runtimeinventering, konfiguration eller legitim testindata i ett isolerat, behörigt labb. Ett test som visar avkodning bevisar inte CVE-utlösning. Testa inte felutlösande indata mot publika eller produktionssatta system.
 
 | Exempel | Vad är nästa meningsfulla kontroll? | Vad ska **inte** antas? |
@@ -56,7 +56,7 @@ Utgå från tre frågor för varje tänkbar undersökning:
 | **FME:** leverantören har rapporterat påverkan | Inventera aktiva hämtningar, faktisk produkt-/runtimeversion och processens behörigheter; verifiera rättningsbesked | Att en viss integration har läckt data eller att varje jobb avkodar Brotli |
 | **GeoServer eller annat okänt program:** ingen generell direkt påverkan styrkt | Börja med faktisk komponent- och beroendeinventering innan någon avkodnings- eller exploateringskontroll | Att frånvaro från produktlistor betyder säkert eller sårbart |
 
-**Avsluta med ett nästa steg, inte ett påhittat slutbesked.** Om ingen relevant avkodare kan beläggas: dokumentera vad som granskats och vad som är okänt. Om leverantören rekommenderar en rättning för den berörda produktversionen: genomför den utan krav på egen reproduktion. Om en aktiv sårbar väg dessutom bekräftas: höj prioriteten för skydd och verifiering före mer forskning. Håll privata testresultat och känsliga miljöuppgifter utanför det publika repot. [Riskkedja och verksamhetskonsekvenser](riskkedja.md) · [Prioritering i drift](skydd.md#prioritera-aktiva-riskkedjor).
+**Avsluta med vad som behöver kontrolleras eller åtgärdas.** Om ingen relevant avkodare kan beläggas: dokumentera vad som granskats och vad som är okänt. Om leverantören rekommenderar en rättning för den berörda produktversionen: genomför den utan krav på egen reproduktion. Om en aktiv sårbar väg dessutom bekräftas: höj prioriteten för skydd och verifiering före mer forskning. Håll privata testresultat och känsliga miljöuppgifter utanför det publika repot. [Riskkedja och verksamhetskonsekvenser](riskkedja.md) · [Prioritering i drift](skydd.md#prioritera-aktiva-riskkedjor).
 
 ## Patchstatus är en separat dimension
 
@@ -67,7 +67,7 @@ Utgå från tre frågor för varje tänkbar undersökning:
 
 **Leverantörsrekommenderad patch kräver inte egen CVE-reproduktion.** Kontroll av nåbarhet styr hur brådskande en viss riskkedja ska undersökas och vilka extra skydd som behövs; använd inte avsaknad av ett produktspecifikt exploitbevis som skäl att ignorera ett säkerhetsbesked för en berörd produktversion.
 
-En ändrad SBOM eller ett uppdaterat paket på en annan maskin bevisar inte rättning i den körande processen. Särskilt viktigt är system-Brotli kontra medföljande/embedded Brotli.
+En ändrad SBOM eller ett uppdaterat paket på en annan maskin bevisar inte rättning i den körande processen. Skilj system-Brotli från kopior som följer med ett program.
 
 ## Källhierarki och skilda riskbegrepp
 
@@ -80,9 +80,19 @@ En ändrad SBOM eller ett uppdaterat paket på en annan maskin bevisar inte rät
 
 Detta repo beskriver primärt **spridning av ett känt fel genom legitima programvaruberoenden**, inte ett bevisat intrång i paketbyggnad eller leveranskedja. [OWASP threat modeling](https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html) · [OWASP SBOM/beroendegraf](https://cheatsheetseries.owasp.org/cheatsheets/Dependency_Graph_SBOM_Cheat_Sheet.html) · [CISA VEX](https://www.cisa.gov/sites/default/files/2023-04/minimum-requirements-for-vex-508c.pdf).
 
+## Värdera skannerresultat och säkerhetstester
+
+**Ett genomfört test bevisar bara vad som faktiskt observerades i den testade miljön.** Håll isär (1) bibliotek på disk eller i ett bygge, (2) faktiskt använd avkodare, (3) CVE-specifik felutlösning och (4) påvisad säkerhetseffekt. Ett signaturfynd, en vanlig lyckad avkodning eller ett enstaka felmeddelande bevisar inte automatiskt nästa nivå. Krasch och kodkörning är dessutom olika resultat.
+
+Ange testad produkt/version, relevant dataväg, källa, positiva och negativa kontroller samt begränsningar när ett resultat används som stöd för **en slutsats som påverkar åtgärd**. Ett syntetiskt eller isolerat test verifierar bara de testade villkoren. Avsaknad av offentlig reproduktion är inte ett säkerhetsintyg. [Google Project Zeros originalrapport](https://project-zero.issues.chromium.org/issues/565308158) gäller grundfelet i Brotli, inte automatiskt QGIS, FME eller ArcGIS. Detaljerad PoC-analys och privata tester hör till forskningsunderlaget, inte denna vägledning.
+
 ## Publiceringsgräns
 
-Publicera **vad användaren behöver veta för att bedöma och rätta sin installation**, men inte nya, ännu osamordnade reproduktionsdetaljer, felutlösande bytes, exploiteringsskript, minnesadresser eller råloggar från privata produkttester. Rapportera nya produktspecifika säkerhetsfynd konfidentiellt enligt underhållarens policy. Källor och produktstatus uppdateras när nya leverantörsbesked gör skillnad.
+Broccoli2Shell-GIS ska hjälpa **GIS-användare och systemansvariga att förstå, kontrollera och åtgärda CVE-2026-111497**. Innehållet avgränsas till GIS-produkter, relevanta beroenden och hur rättningen når den använda installationen.
+
+Ta med tekniska uppgifter som hjälper någon att kontrollera, prioritera eller uppdatera en GIS-miljö. Beskriv relevanta men outredda angreppsvägar som möjliga. Publicera inte detaljer som främst förenklar reproduktion eller exploatering; nya produktspecifika fynd kan behöva rapporteras konfidentiellt. Exempel utanför GIS ska förklara beroenden eller uppdateringsansvar, inte bilda en produktkatalog.
+
+Fullständiga testmiljöer, felutlösande bytes, exploateringsskript, minnesadresser och privata råloggar hör till forskningsunderlaget. Forskningen kan därför vara avsevärt mer omfattande än det publika repot. Detta är en redaktionell gräns, inte skäl att undanhålla riskinformation som behövs för försvar.
 
 ## Skilj fyra sorters angrepp från varandra
 
@@ -97,4 +107,4 @@ Publicera **vad användaren behöver veta för att bedöma och rätta sin instal
 
 Att källan är betrodd, TLS-anslutningen giltig, filen skannad eller en WAF installerad är **en kontroll**, inte ett generellt bevis att en sårbar avkodare är onåbar. Beskriv vilken dataingång kontrollen faktiskt bryter. Uppdaterad upstream-kod, uppdaterat distributionspaket och **faktisk rättad drift** redovisas var för sig.
 
-Ett dokumenttest som kontrollerar att "HTTP" förekommer i texten är inte en säkerhetstest av en tjänst. En osamordnad produktutlösning i ett privat labb bör inte publiceras med felutlösande indata, råloggar eller instruktioner innan ansvariga kontaktats.
+En kontroll av dokumentation visar inte hur en körande tjänst fungerar. En osamordnad produktutlösning i ett privat labb bör inte publiceras med felutlösande indata, råloggar eller instruktioner innan ansvariga kontaktats.

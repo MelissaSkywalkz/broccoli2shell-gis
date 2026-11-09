@@ -1,22 +1,28 @@
-# Broccoli2Shell i GIS – vad vet vi, vad är osäkert och vad bör göras?
+# Broccoli2Shell i GIS: påverkan och uppdateringar
 
-**CVE-2026-111497** är ett minnesfel i **Googles Brotli-avkodare**, inte en GIS-specifik sårbarhet. Brotli används för att packa upp komprimerad information och följer med i många bibliotek, runtimemiljöer, filformat och servertjänster **även utanför GIS**.
+[![CVE](https://img.shields.io/badge/CVE-2026--111497-f12c35)](https://www.cve.org/CVERecord?id=CVE-2026-111497)
+[![CVSS](https://img.shields.io/badge/CVSS%204.0-9.2%20Critical-f12c35)](https://www.cve.org/CVERecord?id=CVE-2026-111497)
+[![CISA KEV](https://img.shields.io/badge/CISA%20KEV-Listed-d97706)](https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2026-111497)
 
-**Var finns felet – och varför nämns GIS-produkter?** CVE-felet finns i **Googles Brotli-avkodare**. Bredanvända bibliotek och körmiljöer, exempelvis **GDAL/Arrow, Node.js och .NET**, kan använda eller leverera berörd Brotli-kod genom sina beroenden. Det är inte en separat brist i QGIS, FME, ArcGIS, Hajk eller Origo Servers egen applikationskod som har påvisats här. **Men produkterna kan påverkas genom beroenden och behöva säkerhetsuppdateras.** Leverantörsbekräftad påverkan gäller fortfarande, utan att vara bevis för generell exploaterbarhet.
+**Uppdaterad: 9 november 2026**
 
-**Hajk och Origo Server är exempel på Node.js-beroendet.** Vissa installationer använder Node.js i sin backend och kan därför behöva uppdatera den *underliggande Node.js-runtimen* som tjänsten faktiskt kör. Express ger en möjlig väg till avkodaren, men ingen CVE-utlösning eller kodkörning har verifierats specifikt i dessa produkter här. Detsamma kan gälla många andra Node.js-tjänster, även helt utanför GIS.
+**CVE-2026-111497** är ett minnesfel i Googles Brotli-avkodare. Felet är inte GIS-specifikt. Brotli används även i filformat, bibliotek och körmiljöer som förekommer i GIS-program.
 
-**Bredden utanför GIS:** CVE-specifika leverantörsbesked eller rättningar finns också för arkivverktygsvarianten [7-Zip ZS (7-Zip-zstd)](https://github.com/mcmilk/7-Zip-zstd/releases/tag/v26.05-v1.5.7-R1) (en särskild arkivverktygsvariant, **inte** vanliga 7-Zip), utvecklarverktyget [Git for Windows](https://github.com/git-for-windows/build-extra/blob/main/ReleaseNotes.md) (medföljande Brotli rättat i 2.56.0(4)), JavaScript-körmiljön [Bun](https://github.com/oven-sh/bun/security/advisories/GHSA-663w-cv8g-jj2p) (rättat i 1.4.4), [PHP i Plesk för Windows](https://support.plesk.com/hc/en-us/articles/44567591006743-Vulnerability-CVE-2026-111497-Out-of-bounds-write-in-Brotli-bundled-with-PHP-on-Plesk-for-Windows) (berört Brotli via PHP:s cURL-tillägg) och brandväggssystemet [PAN-OS](https://security.paloaltonetworks.com/CVE-2026-111497) (villkorad exponering vid både Brotli-inspektion och TLS-dekryptering). [AWS](https://aws.amazon.com/security/security-bulletins/2026-155-aws/) beskriver dessutom påverkan på **Node.js- och .NET-körmiljöer i Lambda**, medan **själva den hanterade Lambda-tjänsten inte är påverkad**. Exemplen visar hur samma underliggande fel når vitt skilda teknikområden; de bevisar inte exploatering av varje produkt eller installation. [Källor och avgränsningar](docs/kallor.md#exempel-utanför-gis).
+Broccoli2Shell-GIS hjälper GIS-användare och systemansvariga att förstå påverkan, kontrollera sina installationer och genomföra relevanta uppdateringar. Dokumentationen följer GIS-produkter, deras beroenden och hur rättningen når den använda avkodaren.
 
-**Källkontroll: 8 november 2026.** Detta är en fristående vägledning, **inte** ett säkerhetsbesked från någon produktleverantör, en kontroll av din installation eller en lista över bekräftat exploaterbara GIS-program. Produkt- och rättningsstatus gäller det angivna kontrolldatumet; kontrollera senare leverantörsbesked inför en åtgärd.
+GIS-program kan använda Brotli genom exempelvis GDAL/Arrow, Node.js och .NET. Ingen separat brist i QGIS, FME, ArcGIS, Hajk eller Origo Servers egen applikationskod har påvisats här. Produkterna kan ändå behöva uppdateras på grund av sina beroenden. Leverantörsbekräftad påverkan innebär inte att varje angreppsväg är exploaterbar.
 
-## Börja här – behöver du göra något?
+En produkt kan innehålla berörd kod utan att avkodaren är nåbar. Rättningen behöver dessutom nå den version som användaren faktiskt kör. Några officiella exempel utanför GIS förklarar skillnaden. [Exempel och avgränsningar](docs/produktoversikt.md#exempel-utanför-gis-och-deras-betydelse-för-gis).
 
-**Vad vet vi?** En särskilt felaktig Brotli-komprimerad dataström kan orsaka minneskorruption i en berörd avkodare. Vissa leverantörer har bekräftat produktpåverkan och publicerat rättningar. För andra GIS-produkter finns dokumenterade beroenden eller *möjliga* avkodningsvägar, men inte bekräftad produktspecifik exploatering.
+Produktuppgifterna är kontrollerade 8 till 9 november 2026, om inte annat anges. Kontrollera leverantörernas senaste besked och den egna installationen inför uppdatering. Tabellen visar inte vilka GIS-produkter som kan exploateras.
 
-**Vad vet vi inte?** Ett sårbart bibliotek i en installation bevisar inte att en angripare kan nå det eller att CVE:n kan utlösas där. Avsaknad av en verifierad angreppsväg betyder samtidigt **inte** att hela installationen är säker. Ingen av de GIS-produkter som kartlagts här har fått generell fjärrkodkörning (RCE) styrkt genom denna dokumentation.
+## Börja här: behöver du göra något?
 
-**Vad bör göras ändå?** **Följ relevanta säkerhetsuppdateringar från leverantör eller distribution utan att invänta ett eget exploateringstest.** Använder du GIS: fortsätt med godkända verktyg och normala rutiner för uppdateringar och externa filer. Förvaltar du system: prioritera aktiva servrar, automatiska dataimporter och processer med känsliga behörigheter, och verifiera att rättningen når den *faktiskt använda* avkodaren.
+**Känt:** En felaktig Brotli-ström som når CVE:ns felvillkor kan orsaka minneskorruption i en berörd avkodare. Vissa leverantörer har bekräftat produktpåverkan och publicerat rättningar. För andra GIS-produkter finns dokumenterade beroenden eller *möjliga* avkodningsvägar, men inte bekräftad produktspecifik exploatering.
+
+**Oklart:** Ett sårbart bibliotek i en installation visar inte om en angripare kan nå det eller utlösa CVE:n där. Avsaknad av en verifierad angreppsväg betyder inte att hela installationen är säker. Underlaget styrker inte generell fjärrkodkörning (RCE) i någon av de undersökta GIS-produkterna.
+
+**Åtgärd:** Installera relevanta säkerhetsuppdateringar från leverantör eller distribution. Vänta inte på ett eget exploateringstest. Använder du GIS: fortsätt med godkända verktyg och normala rutiner för uppdateringar och externa filer. Förvaltar du system: prioritera aktiva servrar, automatiska dataimporter och processer med känsliga behörigheter, och verifiera att rättningen når den *faktiskt använda* avkodaren.
 
 En vanlig GIS-användare behöver inte göra DLL-analyser eller CVE-tester. GIS-förvaltning, IT/drift och leverantören delar på arbetet beroende på vem som äger produkten och dess uppdateringar. [Praktiskt stöd för ansvar och överlämning](docs/borja-har.md).
 
@@ -24,22 +30,22 @@ En vanlig GIS-användare behöver inte göra DLL-analyser eller CVE-tester. GIS-
 
 CVE-2026-111497 är en **out-of-bounds write** (skrivning utanför avsedd minnesbuffert) i Brotli-avkodning. Särskilt felaktig komprimerad indata kan få avkodaren i ett ogiltigt tillstånd och orsaka minneskorruption. **Inte varje trasig fil eller varje komprimerat svar utlöser felet.** [Node.js säkerhetsbesked](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases) · [CVE-post](https://www.cve.org/CVERecord?id=CVE-2026-111497).
 
-Fyra separata påståenden får inte blandas ihop:
+När en produkt bedöms behöver fyra frågor hållas isär:
 
 1. **Berört beroende:** en version som omfattas av CVE:n finns i eller används av programvaran.
 2. **Nåbar avkodare:** en viss fil, begäran eller datakälla behandlas faktiskt av den berörda funktionen.
 3. **CVE-utlösning:** just det specifika felvillkoret kan nås genom denna väg.
 4. **Påvisad säkerhetseffekt:** exempelvis krasch, minneskorruption, informationsröjande eller kodkörning har verkligen demonstrerats i den angivna miljön.
 
-**Berört beroende ≠ nåbar avkodare ≠ utlöst CVE ≠ bekräftad säkerhetskonsekvens.** En uppdatering är ett separat femte påstående: den måste finnas i **den körande installationen**, inte bara i en uppströmsrelease.
+Ett berört beroende visar inte om avkodaren kan nås, om CVE:n kan utlösas eller om en säkerhetseffekt har uppstått. Kontrollera också att rättningen finns i den körande installationen, inte bara i en uppströmsrelease.
 
-En krasch kan ge tjänsteavbrott. Minneskorruption *kan* under särskilda förhållanden leda till mer allvarlig påverkan; informationsröjande och kodkörning kräver egna belägg. Forskare har demonstrerat kodkörning i en avgränsad testmiljö med en **officiell, oförändrad Node.js 24.22.0-binär på Linux arm64**. Det är **inte** bevis för RCE i QGIS, FME, ArcGIS, Origo Server, Hajk eller GeoServer. [Forskarens redogörelse](https://www.imperva.com/blog/node2shell-from-brotli-data-to-remote-code-execution/) · [Fördjupning om CVE-mekanismen](docs/cve-mekanism.md) · [Konsekvenser och deras beviskrav](docs/konsekvenser.md).
+En krasch kan ge tjänsteavbrott. Minneskorruption *kan* under särskilda förhållanden leda till mer allvarlig påverkan; informationsröjande och kodkörning kräver egna belägg. Forskare har demonstrerat kodkörning i en avgränsad Node.js-testmiljö. Det är **inte** bevis för RCE i QGIS, FME, ArcGIS, Origo Server, Hajk eller GeoServer. [Forskarens redogörelse](https://www.imperva.com/blog/node2shell-from-brotli-data-to-remote-code-execution/) · [Fördjupning om CVE-mekanismen](docs/cve-mekanism.md) · [Konsekvenser och deras beviskrav](docs/konsekvenser.md).
 
 CISA lade till CVE:n i sin katalog över kända exploaterade sårbarheter (KEV) **27 oktober 2026**. Det stärker skälen att prioritera relevanta säkerhetsåtgärder men bevisar **inte** att ett särskilt GIS-system har angripits. [CISA KEV](https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2026-111497).
 
 ## 2. Hur kan berörd Brotli-kod nås?
 
-| Möjlig indataväg | Vad krävs för att den ska vara relevant? | Exempel – inte bevis för påverkan |
+| Möjlig indataväg | Vad krävs för att den ska vara relevant? | Exempel (inte bevis för påverkan) |
 | --- | --- | --- |
 | **Inkommande HTTP-begäran** | En backend accepterar och avkodar `Content-Encoding: br`, eventuellt före autentisering. | Express/Node.js; separat konfigurerad request-decompression i .NET. |
 | **Hämtat HTTP-svar** | En klient avkodar ett Brotli-komprimerat svar med berörd kod. | API/WMS/WFS via en faktisk HTTP-klient i exempelvis FME, QGIS, Python eller en integration. |
@@ -48,7 +54,7 @@ CISA lade till CVE:n i sin katalog över kända exploaterade sårbarheter (KEV) 
 
 Swagger/OpenAPI är ett **gränssnitt eller en API-beskrivning**, inte en egen Brotli-avkodare. Det är webbläsaren eller programmet som faktiskt gör HTTP-anropet som behöver kontrolleras. HTTP-komprimering och Brotli *inne i* en Parquet-fil är två skilda vägar. [HTTP-vägar](docs/http-angreppsvagar.md) · [Filvägar och social engineering](docs/fil-angreppsvagar.md) · [Från ett visst dataflöde till rätt patch](docs/dataflode-till-patch.md).
 
-**”Jag använder QGIS men hämtar inga externa data.”** Det kan minska exponeringen via automatiska externa tjänster; du är **inte automatiskt exponerad** bara för att en berörd Brotli-kopia har funnits i en distribution. Men även en *lokalt sparad* GeoParquet-fil kan tidigare ha laddats ned manuellt eller skickats av någon annan. En möjlig avkodningsväg visar **inte** att filen kan utlösa CVE:n eller ge RCE i QGIS. Fortsätt använda QGIS normalt och installera relevanta officiella uppdateringar; IT/GIS kan vid behov kontrollera vilken Brotli-kopia installationen använder. [QGIS-bevisningen](docs/qgis.md).
+**QGIS utan externa datakällor:** Det minskar vissa exponeringsvägar. En berörd Brotli-kopia i installationen är inte i sig bevis för att den går att angripa. Men även en *lokalt sparad* GeoParquet-fil kan tidigare ha laddats ned manuellt eller skickats av någon annan. En möjlig avkodningsväg visar **inte** att filen kan utlösa CVE:n eller ge RCE i QGIS. Fortsätt använda QGIS normalt och installera relevanta officiella uppdateringar; IT/GIS kan vid behov kontrollera vilken Brotli-kopia installationen använder. [QGIS-bevisningen](docs/qgis.md).
 
 **HTTPS är viktigt men inte ett fullständigt avkodarskydd.** Korrekt TLS/certifikatkontroll skyddar normalt mot manipulation under transport, inte mot data från en komprometterad legitim källa. Filvalidering, viruskontroll och tillfälliga `br`-spärrar kan minska risker men ersätter inte patchning. [Skydd och begränsningar](docs/skydd.md).
 
@@ -56,21 +62,21 @@ Swagger/OpenAPI är ett **gränssnitt eller en API-beskrivning**, inte en egen B
 
 **Status nedan gäller källunderlaget från 8 november 2026, inte läsarens installation.** ”Möjlig väg” betyder inte ”bekräftat exploaterbar produkt”. Leverantörens uttryckliga besked om påverkan väger tyngre än en hypotes om ett beroende.
 
-| Produkt eller driftmiljö att kontrollera | Vad vet vi? Och vad saknas? | Vad bör göras ändå? |
+| Produkt eller driftmiljö | Belägg och osäkerheter | Rekommenderad kontroll eller åtgärd |
 | --- | --- | --- |
 | **[QGIS](docs/qgis.md)** | **Berörd Brotli-kod via vanliga GIS-bibliotek**, med en dokumenterad GeoParquet → GDAL → Arrow-väg i specificerade byggen. Ingen QGIS-specifik CVE-utlösning eller RCE visad i det offentliga underlaget; andra vägar är mer osäkra. | Uppdatera via officiell QGIS-/OSGeo4W-distribution. Kontrollera faktiskt laddad Brotli-kopia vid behov. |
-| **[FME Form/Flow](docs/fme.md)** | **Safe har rapporterat produktpåverkan via Brotli-relaterade komponenter** i HTTPCaller/OpenAPICaller, Parquet och DuckDB. Exakta CVE-rättade FME-byggen är **inte självständigt verifierade i öppet underlag**; Safes CVE-artikel kräver nu inloggning. | Följ Safes säkerhetsråd; begär ett versions- och plattformsspecifikt patchbesked. Prioritera viktiga automatiska flöden. |
+| **[FME Form/Flow](docs/fme.md)** | Safe bekräftar påverkan i FME genom HTTP-klient, Parquet och DuckDB. Enligt artikel kontrollerad 9 november förbereds rättade byggen för 2026.1 till 2026.3. DuckDB kräver separat rättning. Ingen färdig CVE-rättad FME-utgåva har bekräftats här. | Följ Safes råd för er version. Linux använder system-Brotli för HTTP/Parquet, men DuckDB har en egen kopia. Kontrollera även externa anrop från Workbench och schemalagda Engine-jobb. |
 | **[ArcGIS](docs/arcgis.md)** | **Esri bekräftar påverkan via underliggande komponenter** för Server 11.5/12.0/12.1 och Pro 3.5+, med Node.js- och .NET-relaterade rättningskedjor. Server 11.1/11.3 berörs enligt Esri inte av *just Node.js/Brotli-felet*. Ingen specifik extern CVE-endpoint eller generell ArcGIS-RCE redovisas här. | Installera Esris Server-patch där den gäller; följ Esris aktuella besked om Pro och uppdatera relevant .NET separat. |
-| **[Origo Server – Node.js i backend](docs/origo-server.md)** | En möjlig väg till **Brotli-avkodaren som följer med Node.js** stöds av Express och granskad källkod. Inget eget CVE-fel i Origos applikationskod eller någon Origo-specifik exploatering har påvisats här. Webbklienten är separat. | Kontrollera om Node-backend körs; uppdatera och verifiera berörd Node.js-runtime enligt driftmiljöns och Node-projektets råd. |
-| **[Hajk – Node.js i vissa backenddistributioner](docs/hajk.md)** | Hajks backend kan använda **Brotli-avkodaren som följer med Node.js** via Express. Backend-ZIP använder driftmiljöns Node.js; full officiell Docker innehåller Node.js; statiska `hajk-simple` saknar Node-backend i drift. Inget eget CVE-fel i Hajks kod eller någon Hajk-specifik exploatering har påvisats här. | ZIP: uppdatera driftmiljöns Node.js. Full Docker: välj uppdaterad image (t.ex. `nightly-master`), **hämta och återskapa** containern och verifiera den körande Node-versionen. |
+| **[Origo Server, Node.js i backend](docs/origo-server.md)** | En möjlig väg till **Brotli-avkodaren som följer med Node.js** stöds av Express och granskad källkod. Inget eget CVE-fel i Origos applikationskod eller någon Origo-specifik exploatering har påvisats här. Webbklienten är separat. | Kontrollera om Node-backend körs; uppdatera och verifiera berörd Node.js-runtime enligt driftmiljöns och Node-projektets råd. |
+| **[Hajk, Node.js i vissa backenddistributioner](docs/hajk.md)** | Hajks backend kan använda **Brotli-avkodaren som följer med Node.js** via Express. Backend-ZIP använder driftmiljöns Node.js; full officiell Docker innehåller Node.js; statiska `hajk-simple` saknar Node-backend i drift. Inget eget CVE-fel i Hajks kod eller någon Hajk-specifik exploatering har påvisats här. | ZIP: uppdatera driftmiljöns Node.js. Full Docker: välj uppdaterad image (t.ex. `nightly-master`), **hämta och återskapa** containern och verifiera den körande Node-versionen. |
 | **[GeoServer/GeoWebCache](docs/geoserver.md)** | **Ingen generell produktpåverkan belagd.** Separata Jetty/Brotli4j-moduler eller tillägg *kan* vara relevanta; att standardinstallationen använder en berörd avkodare är inte fastställt. | Inventera bara faktiskt använda moduler/native-kopior och rätta berörda beroenden när de finns. |
 | **Frends, Pentaho/Kettle, myCarta, Gaida, EntryScape m.fl.** | **Inte produktspecifikt fastställt här.** Att programmet har HTTP, Java eller .NET är inte tillräcklig bevisning. | Kartlägg aktiv dataingång och avkodare, följ produktleverantörens besked och uppdatera berörda komponenter. [Exempel på verksamhetsflöden](docs/verksamhetsfloden.md). |
 
 **Hajks Docker-uppdateringar:** Enligt [Hajks säkerhetspolicy](https://github.com/hajkmap/Hajk/blob/master/SECURITY.md#official-docker-images) och [Docker-anvisningar](https://github.com/hajkmap/Hajk/blob/master/Docker/README.md#keeping-the-base-image-up-to-date) bygger projektet automatiskt om den **senaste releasen** som `nightly-master` varje natt, med en aktuell grundavbild för Node.js och operativsystemet. Versionsbundna releaseavbilder byggs däremot inte om mellan releaser; en kort versionstagg kan flyttas vid en ny patchrelease. **En nypublicerad image uppdaterar inte en redan körande installation automatiskt:** driftansvarig måste hämta den och återskapa containern, själv eller via ett kontrollerat automatiskt uppdateringsflöde. Nattlig ombyggnad uppdaterar inte heller Hajks npm-beroenden utanför deras låsta versioner. Kontrollera faktisk Node-version efter uppdatering; en viss tagg är inte i sig ett CVE-fixintyg.
 
-**QGIS, FME och ArcGIS har olika bevisstatus men samma bakomliggande CVE-ursprung.** Det vore fel att sammanfatta alla tre som lika exploaterbara – eller att kalla en av dem ”säker” därför att CVE-utlösningen inte demonstrerats offentligt. **En produkt kan påverkas av CVE:n utan att dess utvecklare har orsakat grundfelet.** Ett sakligt besked anger **vilken version, vilket beroende och vilken typ av belägg** det avser, och rekommenderar relevant uppdatering. [Detaljerad produktöversikt med separata möjliga vägar](docs/produktoversikt.md).
+QGIS, FME och ArcGIS har olika bevisläge. Det finns därför inget stöd för att bedöma dem som lika exploaterbara eller kalla någon av dem säker bara för att en CVE-utlösning inte har demonstrerats offentligt. **En produkt kan påverkas av CVE:n utan att dess utvecklare har orsakat grundfelet.** Ett sakligt besked anger **vilken version, vilket beroende och vilken typ av belägg** det avser, och rekommenderar relevant uppdatering. [Detaljerad produktöversikt med separata möjliga vägar](docs/produktoversikt.md).
 
-## 4. Vilka rättningar och besked fanns den 8 november 2026?
+## 4. Vilka rättningar och besked fanns den 9 november 2026?
 
 Detta är **tillgängliga versioner eller daterad leverantörsstatus**, inte ett intyg om att en viss installation är uppdaterad. En distribution kan ha bakåtporterade säkerhetsrättningar och flera Brotli-kopior. Följ leverantörens rekommenderade paket för just er version och plattform.
 
@@ -88,9 +94,9 @@ Detta är **tillgängliga versioner eller daterad leverantörsstatus**, inte ett
 | **3liz QGIS Server** | Avbild `4.2.3-1.9.7` angavs innehålla rättat paket | Gäller den särskilda avbilden, inte alla QGIS Server-installationer. [Underhållarärende](https://github.com/3liz/py-qgis-server/issues/137) |
 | **ArcGIS Server** | Security 2026 Update 4 för `11.5`, `12.0`, `12.1` | Esris produktpatch, inte bevis om lokal installation. [Esri](https://support.esri.com/en-us/patches-updates/2026/arcgis-server-security-2026-update-4-patch) |
 | **ArcGIS Pro 3.5+** | Produktpatch **väntades** enligt Esris besked uppdaterat **7 november** | Daterat besked, inte ett påstående om aktuell status. Kontrollera även separat .NET. [Esri](https://www.esri.com/arcgis-blog/products/trust-arcgis/administration/brotli-vulnerabilities-broccoli2shell) |
-| **FME** | Påverkan rapporterad; **CVE-specifika rättade byggnummer inte självständigt verifierade här** | ”Inte verifierat” betyder **inte** ”rättning saknas”. Begär produktversionsbesked från Safe. [Säkerhetsuppdateringar](https://support.safe.com/hc/en-us/articles/46792031942029-FME-November-2026-Security-Updates) |
+| **FME** | Safe anger påverkan och att rättade 2026.1 till 2026.3-byggen förbereds. DuckDB separat. | Kontrollera Safes [CVE-specifika besked](https://support.safe.com/hc/en-us/articles/50040725669517-Brotli-Decoder-CVE-2026-111497-Is-FME-Impacted) för er version. Novemberartikeln om andra sårbarheter bekräftar inte en Brotli-rättning. |
 
-**En upstreamfix, en tillgänglig produktpatch och en verifierat rättad körprocess är tre olika saker.** Uppdatera via rätt leverantörskanal, starta om eller driftsätt om där det krävs och kontrollera faktisk beroendeversion. [Patchkedjan med tekniska distributionsvillkor](docs/patchkedjan.md) · [Bibliotek och inbyggda kopior](docs/bibliotek.md) · [Supply chain – hur sårbar kod följer med](docs/supply-chain.md).
+En rättning i källkoden når inte automatiskt en installerad produkt eller den process som redan kör. Uppdatera via leverantörens kanal, starta om eller driftsätt om vid behov och kontrollera vilken beroendeversion som används. [Patchkedjan med tekniska distributionsvillkor](docs/patchkedjan.md) · [Bibliotek och inbyggda kopior](docs/bibliotek.md) · [Supply chain, hur sårbar kod följer med](docs/supply-chain.md).
 
 ## 5. Vad bör jag göra och vem ansvarar?
 
@@ -101,7 +107,7 @@ Detta är **tillgängliga versioner eller daterad leverantörsstatus**, inte ett
 | **IT/drift och säkerhet** | Följ leverantörspatchar utan krav på lokal exploatering; prioritera publika aktiva parsrar och interna jobb med känsliga rättigheter. Kontrollera körande runtime, tjänstekonto och faktisk rättning. |
 | **Leverantör/utvecklare** | Ange påverkan för specifik produktversion, avkodare, leveransform, säkerhetsrättning och kvarvarande osäkerhet; använd SBOM/VEX vid behov, men skilj beroendefynd från exploaterbarhet. |
 
-**Snabb prioritering:** En **publik tjänst som använder en opatchad Node.js-runtime och vars Express-parsers avkodar angriparpåverkade `br`-begäranden före autentisering** behöver normalt hanteras skyndsamt. Detta gäller oavsett om tjänsten är ett GIS-system eller en helt annan Node.js-applikation. Ett internt automatiskt jobb med extern indata och känsliga behörigheter kan också vara viktigt. En äldre **oanvänd** lokal Node/npm-installation har normalt lägre akut prioritet för den här specifika vägen; **npm är pakethanteraren, inte en server**. Om användningen är okänd: **undersök**, anta varken ”sårbar” eller ”säker”. För ett ärvt GIS-system: börja med aktiva jobb och servrar, inte varje äldre shapefil.
+**Prioritera aktiva vägar:** En publik tjänst med orättad Node.js-runtime där Express avkodar angriparpåverkade `br`-begäranden före autentisering behöver normalt hanteras skyndsamt. Detta gäller oavsett om tjänsten är ett GIS-system eller en helt annan Node.js-applikation. Ett internt automatiskt jobb med extern indata och känsliga behörigheter kan också vara viktigt. En äldre **oanvänd** lokal Node/npm-installation har normalt lägre akut prioritet för den här specifika vägen; **npm är pakethanteraren, inte en server**. Om användningen är okänd: **undersök**, anta varken ”sårbar” eller ”säker”. För ett ärvt GIS-system: börja med aktiva jobb och servrar, inte varje äldre shapefil.
 
 **Patchrådet gäller oavsett prioriteringsordning:** Vänta inte på att själv reproducera CVE:n innan du installerar en säkerhetsuppdatering som leverantören rekommenderar för er berörda produktversion. Avkodningsvägens nåbarhet styr framför allt brådska, behov av kompletterande skydd och var rättningen måste införas.
 
@@ -109,7 +115,7 @@ För att avgränsa en okänd miljö räcker det ofta att svara på: **Vad tar vi
 
 ## 6. Tekniska fördjupningar och källor
 
-README ger den samlade bilden. Dokumenten nedan ger **belägg, tekniska detaljer och exempel**; de ska inte behöva läsas för att förstå huvudslutsatserna ovan.
+Fördjupningarna beskriver hur du kontrollerar beroenden, undersöker datavägar och verifierar rättningar i GIS-miljöer.
 
 | Fråga | Fördjupning |
 | --- | --- |
@@ -120,6 +126,16 @@ README ger den samlade bilden. Dokumenten nedan ger **belägg, tekniska detaljer
 | Vilka produktbelägg finns? | [Produktöversikt](docs/produktoversikt.md) · [QGIS](docs/qgis.md) · [FME](docs/fme.md) · [ArcGIS](docs/arcgis.md) · [Origo Server](docs/origo-server.md) · [Hajk](docs/hajk.md) · [GeoServer](docs/geoserver.md) |
 | Hur görs en säker undersökning och hur redovisas evidens? | [Metod](docs/metod.md) · [Okänd programvara](docs/ny-programvara.md) · [Källregister](docs/kallor.md) · [Roller och överlämning](docs/borja-har.md) |
 
-**Bevis- och publiceringsgräns:** Officiella leverantörsbesked, öppet dokumenterade kod-/beroendekedjor och ännu obekräftade angreppsvägar redovisas separat. Inga privata testloggar, känsliga organisationsuppgifter eller osamordnade CVE-utlösande reproduktionsdetaljer ingår. Frånvaron av offentlig produktspecifik bevisning betyder **inte** att en angreppsväg är omöjlig. Se [metoden](docs/metod.md) och [källregistret](docs/kallor.md).
+**Publiceringsgräns:** GIS-relaterade angreppsvägar och osäkerheter beskrivs utifrån vad underlaget faktiskt visar. Uppgifter som underlättar kontroll, prioritering eller rättning hör hit; nya osamordnade produktfynd, felutlösande reproduktionsdetaljer och privata testloggar gör det inte. Mer forskning kan finnas än vad som publiceras. [Metod och bevisnivåer](docs/metod.md) · [Källregister](docs/kallor.md).
+
+**Exemplen utanför GIS** finns i [produktöversikten](docs/produktoversikt.md#exempel-utanför-gis-och-deras-betydelse-för-gis) och används för att förklara två frågor: när en avkodare faktiskt är exponerad och vem som ansvarar för att uppdatera en medföljande kopia. [DuckDB i vissa QGIS-miljöer](docs/qgis.md#duckdb-i-qgis-pythonmiljö-en-separat-bibliotekskopia) behandlas som ett möjligt separat beroende med eget bevisläge, inte som ett nytt produktspecifikt exploitpåstående.
+
+## Om projektet och författaren
+
+Jag arbetar som GIS-ingenjör i en svensk kommun och driver det här projektet privat. Innehållet är inte ett officiellt besked från min arbetsgivare eller någon leverantör.
+
+Jag började sammanställa CVE-2026-111497 eftersom uppgifter om GIS-program, bibliotek och rättningar var utspridda hos flera leverantörer. Här samlar jag sådant som hjälper andra att kontrollera och uppdatera sina GIS-miljöer. Jag publicerar bara de fynd som är relevanta för GIS och hjälper läsaren att kontrollera eller åtgärda en risk. Sammanställningen ersätter inte kontroll av den egna installationen.
+
+Har du hittat ett fel, något som behöver förtydligas eller ett nytt leverantörsbesked? [Öppna ett ärende på GitHub](https://github.com/MelissaSkywalkz/broccoli2shell-gis/issues) eller skicka en pull request. Ange gärna källa, version och datum. Dela inte interna systemuppgifter, lösenord, personuppgifter eller privata säkerhetstester i öppna ärenden.
 
 **Licens:** Originaltext CC BY 4.0 ([LICENSE](LICENSE)); externa källor omfattas inte av denna licens.

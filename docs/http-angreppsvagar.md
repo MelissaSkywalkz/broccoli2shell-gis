@@ -1,8 +1,8 @@
-# HTTP – hur når angriparpåverkade svar och begäranden Brotli?
+# HTTP: inkommande begäranden och hämtade svar
 
 **Kontrollerat: 8 november 2026.** [Översikt](../README.md) · [Skydd](skydd.md)
 
-**Två olika angreppsvägar ska aldrig blandas ihop:** en server som **tar emot** en Brotli-komprimerad begärandekropp och en klient som **hämtar** ett Brotli-komprimerat HTTP-svar. Båda kan leda till avkodaren, men via olika kod och olika förtroendegränser.
+Brotli kan avkodas när en server tar emot en komprimerad begäran eller när en klient hämtar ett komprimerat HTTP-svar. Det är två olika kodvägar som behöver kontrolleras var för sig.
 
 ## Inkommande HTTP-begäranden
 
@@ -31,7 +31,7 @@ GIS-app/automatiserat jobb begär WMS/WFS/WMTS/API eller annan URL
 
 **Exponeringsvillkor:** någon kan styra eller påverka HTTP-svarets **komprimerade byte**, den valda klientstacken utför verkligen Brotli-avkodning, och den berörda avkodarkopian används. `Accept-Encoding: br` anger vad klienten kan acceptera; `Content-Encoding: br` anger kodningen hos svaret. **Enbart det ena eller andra HTTP-huvudet verifierar inte att avkodning sker i den undersökta applikationen.** [libcurl CURLOPT_ACCEPT_ENCODING](https://curl.se/libcurl/c/CURLOPT_ACCEPT_ENCODING.html) · [Qt QNetworkRequest](https://doc.qt.io/qt-6/qnetworkrequest.html) · [Microsoft](https://github.com/dotnet/announcements/issues/494).
 
-**Varför även till en betrodd källa?** Källans namn och TLS-certifikat säger inte att innehållet är ofarligt för en bibliotekavkodare. Det kan vara en komprometterad dataleverantör, ett behörigt konto som manipulerats, en uppströmsdatakedja med angriparpåverkan eller en tjänst som legitimt vidarebefordrar data från andra. HTTPS autentiserar normalt transportens motpart och skyddar trafiken mot ändring *mellan dessa TLS-ändpunkter*, inte mot farliga byte som den autentiserade källan själv skickar.
+**Även betrodda källor kan leverera farlig indata.** Källans namn och TLS-certifikat visar inte att innehållet är ofarligt för en avkodare. Det kan vara en komprometterad dataleverantör, ett behörigt konto som manipulerats, en uppströmsdatakedja med angriparpåverkan eller en tjänst som legitimt vidarebefordrar data från andra. HTTPS autentiserar normalt transportens motpart och skyddar trafiken mot ändring *mellan dessa TLS-ändpunkter*, inte mot farliga byte som den autentiserade källan själv skickar.
 
 ## Öppna data via Swagger/OpenAPI: ett API-svar, inte ett eget filformat
 
@@ -43,7 +43,7 @@ GIS-app/automatiserat jobb begär WMS/WFS/WMTS/API eller annan URL
   → webbläsare / FME HTTPCaller / Pythonbibliotek / GIS-klient
   → klientens faktiska Brotli-avkodare, om den används
   → tolkning eller sparande av innehållet
-  → eventuellt en ANDRA avkodningsväg vid senare filimport (t.ex. Parquet)
+  → eventuell separat avkodningsväg vid senare filimport (t.ex. Parquet)
 ```
 
 | Så hämtas öppna data | Var behöver man leta efter avkodaren? | Vad är inte styrkt enbart av hämtningen? |
@@ -54,7 +54,7 @@ GIS-app/automatiserat jobb begär WMS/WFS/WMTS/API eller annan URL
 | **QGIS eller annan GIS-klient** | Vilken nätverkskodväg (t.ex. Qt eller libcurl) som används för just anropet. | Att QGIS-specifik CVE-trigger via API/WMS/WFS har demonstrerats. [QGIS](qgis.md). |
 | **Nedladdad fil öppnas senare** | Både eventuell HTTP-avkodning vid hämtningen och den *separata* filparserns avkodning, exempelvis Parquet/Arrow. | Att `Content-Encoding` säger något om komprimeringen **inne i filformatet**. [Filvägar](fil-angreppsvagar.md). |
 
-**Kontrollera utan att skicka felaktiga data:** I webbläsarens utvecklarverktyg, **Network**, välj den verkliga API-begäran (inte bara Swagger-sidans HTML), och titta efter `Content-Encoding: br`, `gzip` eller frånvaro av sådan kodning. `Accept-Encoding` visar vad klienten annonserar, inte nödvändigtvis vad servern skickar. Ett `br`-svar visar att Brotli är relevant **på HTTP-nivån**, men inte vilken biblioteksimplementation som används eller att den är sårbar. Om `gzip` eller ingen HTTP-komprimering används finns **ingen Brotli-avkodning på just det HTTP-steget**; eventuell intern Parquet-/filkomprimering återstår att undersöka. Webbläsaren kan redan ha avkodat svaret när det visas. [MDN Content-Encoding](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Encoding) · [MDN Accept-Encoding](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Accept-Encoding).
+**Kontrollera utan att skicka felaktiga data:** Öppna webbläsarens utvecklarverktyg och välj den faktiska API-begäran under **Network**, inte bara Swagger-sidans HTML. Kontrollera om svaret har `Content-Encoding: br`, `Content-Encoding: gzip` eller saknar sådan kodning. `Accept-Encoding` visar vad klienten annonserar, inte nödvändigtvis vad servern skickar. Ett `br`-svar visar att Brotli är relevant **på HTTP-nivån**, men inte vilken biblioteksimplementation som används eller att den är sårbar. Om `gzip` eller ingen HTTP-komprimering används finns **ingen Brotli-avkodning på just det HTTP-steget**; eventuell intern Parquet-/filkomprimering återstår att undersöka. Webbläsaren kan redan ha avkodat svaret när det visas. [MDN Content-Encoding](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Encoding) · [MDN Accept-Encoding](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Accept-Encoding).
 
 **Så kontrollerar du samma API-hämtning i FME, Frends, ArcGIS, Python eller Kettle:** [från dataflöde till patch](dataflode-till-patch.md). [Fler exempel på API-flöden](verksamhetsfloden.md) skiljer metadatahämtning, filhämtning, POST och POST-svar.
 
@@ -69,6 +69,14 @@ GIS-app/automatiserat jobb begär WMS/WFS/WMTS/API eller annan URL
 - **Social engineering:** En angripare kan försöka få en operatör att lägga till en annan datatjänst, ändra en URL eller köra ett arbetsflöde som hämtar externa data. Det är en möjlig leveransmetod, inte en CVE-specifik exploatering som har verifierats mot en viss produkt.
 
 Källa: [OWASP TLS](https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Security_Cheat_Sheet.html). **Kryptering och källautentisering är nödvändiga skydd men ingen ersättning för att rätta avkodaren.**
+
+## CDN och omvänd proxy som komprimeringsled
+
+En CDN eller omvänd proxy kan ändra HTTP-komprimeringen mellan ursprungsservern och klienten. Ett svar kan därför levereras med `Content-Encoding: br` även om ursprungsservern inte själv producerade Brotli-komprimering. Konkreta inställningar och klientstöd avgör beteendet. [Cloudflares dokumentation om komprimering](https://developers.cloudflare.com/speed/optimization/content/compression/).
+
+I GIS kan ett WMS-, WFS- eller API-svar passera en CDN eller omvänd proxy innan det når kartklienten eller ett automatiserat jobb. Det betyder **inte** att en CDN automatiskt skapar en ström som utlöser CVE-2026-111497. För den aktuella sårbarhetsvägen måste någon kunna påverka de komprimerade byte som når klienten, den klienten måste faktiskt använda en berörd avkodare och den felaktiga strömmen måste nå det CVE-specifika tillståndet. Normal korrekt Brotli-komprimering är inte exploatering. Att en klient inte skickar `Accept-Encoding: br` bevisar inte ensamt att den aldrig kan få ett `br`-svar eller behandla Brotli-data i ett annat steg.
+
+**Undersök:** var sker komprimering och avkodning i den faktiska kedjan, vilka tjänster kontrollerar innehållet, och vilken uppdatering gäller för den avkodare som körs?
 
 ## Intern tjänst och automatiska jobb
 

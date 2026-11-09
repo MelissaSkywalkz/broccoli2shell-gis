@@ -1,8 +1,8 @@
-# Riskkedjan – från angriparpåverkad indata till verksamhetsskada och skydd
+# Riskkedjan: från angriparpåverkad indata till verksamhetsskada och skydd
 
 **CVE-2026-111497 · Underlag kontrollerat 8 november 2026.** [CVE-felet](cve-mekanism.md) · [Supply chain](supply-chain.md) · [Skydd](skydd.md) · [Rättningar](patchkedjan.md)
 
-**Vill du först få hela bilden utan teknisk fördjupning?** [README](../README.md). För ansvarsfördelning: [överlämning till GIS/IT/leverantör](borja-har.md).
+**Vill du börja utan teknisk förkunskap eller identifiera vem som ska åtgärda?** [Börja här](borja-har.md).
 
 **Syftet:** kunna bedöma ett system även när dess produktnamn saknas i varje CVE-lista. Börja med vad som *kan* komma in, följ den faktiska avkodaren, identifiera **vilken process** som kan påverkas och undersök därefter vad den processen har möjlighet att skada eller komma åt. Först då går det att välja rätt skydd och bedöma uppdateringsbehov.
 
@@ -23,9 +23,9 @@ flowchart TD
   I --> K[Skydd: rättad avkodare, bryt indata, begränsa behörighet och följdskada]
 ```
 
-**Viktig begränsning:** kedjan är **villkorad**, inte en automatisk följd. Att avkodaren får en felaktig ström betyder inte att CVE:n utlöses. Att en out-of-bounds-skrivning uppstår betyder inte att någon har tagit kontroll över processen. Krasch, informationsröjande och fjärrkodkörning är **olika möjliga resultat** med separata beviskrav. RCE har demonstrerats i en specificerad testmiljö med officiell, oförändrad sårbar Node.js 24.22.0 på Linux arm64, **inte generellt för GIS-program**. [Node.js](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases) · [Imperva](https://www.imperva.com/blog/node2shell-from-brotli-data-to-remote-code-execution/).
+**Viktig begränsning:** kedjan är **villkorad**, inte en automatisk följd. Att avkodaren får en felaktig ström betyder inte att CVE:n utlöses. Att en out-of-bounds-skrivning uppstår betyder inte att någon har tagit kontroll över processen. Krasch, informationsröjande och fjärrkodkörning är **olika möjliga resultat** med separata beviskrav. RCE har demonstrerats i avgränsade Node.js-testbyggen, **inte generellt för GIS-program**. [Node.js](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases) · [Imperva](https://www.imperva.com/blog/node2shell-from-brotli-data-to-remote-code-execution/).
 
-## Läs hela kedjan – fem led
+## Läs riskkedjans fem led
 
 | Led | Vad måste utredas i den egna miljön? | Vad hjälper och var hjälper det? |
 | --- | --- | --- |
@@ -37,28 +37,26 @@ flowchart TD
 
 **Två olika försvarsmål:** (a) hindra att felaktiga data når en berörd avkodare och (b) begränsa följderna *om processen ändå påverkas*. En brandvägg, filskanning eller antivirus kan inte ersätta en rättad avkodare. En patch kan inte ensam avgöra vilka affärskritiska resurser processen redan har åtkomst till. [OWASP Threat Modeling](https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html) · [OWASP File Upload](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html).
 
-## Slutbedömning – från inventering till åtgärdsbeslut
+## Slutbedömning efter inventering
 
-**Avsluta varje undersökt angreppsväg med samma sex uppgifter.** Skriv **”okänt – undersök”** där underlag saknas. **Påverkan** avser vad som är belagt om den aktuella avkodaren/produkten; **exponering** avser om angriparpåverkad data kan nå den i drift. Håll **sårbar kod**, **nåbar kodväg**, **faktisk CVE-utlösning** och **visad säkerhetseffekt** åtskilda. *Prioritet* gäller nästa **åtgärd eller kontroll**, inte en påhittad numerisk risksiffra.
+**Avsluta varje undersökt angreppsväg med samma sex uppgifter.** Skriv **”okänt, undersök”** där underlag saknas. **Påverkan** avser vad som är belagt om den aktuella avkodaren/produkten; **exponering** avser om angriparpåverkad data kan nå den i drift. Håll **sårbar kod**, **nåbar kodväg**, **faktisk CVE-utlösning** och **visad säkerhetseffekt** åtskilda. *Prioritet* gäller nästa **åtgärd eller kontroll**, inte en påhittad numerisk risksiffra.
 
 | Fält | Fråga för just den här installationen |
 | --- | --- |
 | **Påverkan** | Finns dokumenterat berörd avkodare i denna produkt/version, eller är det bara en möjlig beroendeväg? |
 | **Exponering** | Körs processen och kan någon styra det Brotli-innehåll som faktiskt avkodas? Krävs autentisering, ett klick eller en schemalagd hämtning? |
 | **Konsekvens** | Krasch och avbrutet jobb; separat eventuellt visat röjande/kodkörning och vilka resurser processen når. |
-| **Prioritet** | Rätta skyndsamt, inventera snarast, hantera i ordinarie uppdatering eller verifiera redan införd rättning – med skäl. |
+| **Prioritet** | Rätta skyndsamt, inventera snarast, hantera i ordinarie uppdatering eller verifiera redan införd rättning, med skäl. |
 | **Rättning** | Exakt komponent och distributionsnivå; *tillgänglig*, *installerad* och *verifierad i körande process* är tre olika lägen. |
 | **Kvarvarande osäkerhet** | Vad måste undersökas innan man kan påstå låg risk, ej påverkad eller färdigpatchad? |
 
 **Viktigt:** En bekräftat berörd produkt med en **okänd indataväg** ska inte automatiskt klassas som exploaterbar. En obekräftad produkt med en automatiserad hämtning ska inte automatiskt klassas som säker. En hypotetisk RCE är inte ett påvisat personuppgiftsläckage. [Prioriteringsprinciper](skydd.md#prioritera-aktiva-riskkedjor) · [Tekniska bevisnivåer](metod.md).
 
-**Säkerhetsuppdatering och prioritering är skilda frågor:** Följ leverantörens rekommenderade säkerhetsrättning för berörd produktversion utan att invänta ett eget felutlösningstest. Använd riskkedjan för att prioritera utrullning, kompletterande skydd och fortsatt inventering. Lägre exponering i *ett* flöde är inte ett intyg om att programmet är helt säkert; en användare kan senare öppna en fil eller lägga till en datatjänst.
-
 ## Exempel: FME-integration som behandlar personuppgifter
 
-*Hypotetiskt verksamhetsexempel – inte en beskrivning av någon verklig integration eller personuppgiftsincident.* Anta att en organisation använder **FME** för att överföra personuppgifter till eller från ett verksamhetssystem.
+*Hypotetiskt verksamhetsexempel, inte en kartläggning av någon verklig Lifecare-installation eller konstaterad personuppgiftsincident.* Anta att en organisation använder **FME** för att överföra uppgifter till eller från ett verksamhetssystem, exempelvis Lifecare.
 
-| Kedjelänk | Exempel – vad förvaltaren ska kontrollera |
+| Kedjelänk | Exempel, vad förvaltaren ska kontrollera |
 | --- | --- |
 | **Angreppsväg** | Finns HTTPCaller/OpenAPICaller, webbanslutningar eller schemalagd hämtning som kan ta emot Brotli-kodat svar? Importeras Parquet eller används DuckDB? Kan innehåll påverkas av en extern leverantör, en delad mapp eller ett komprometterat konto? |
 | **Påverkad process** | Vilken **FME Engine/Workbench-process** avkodar materialet, med vilken Brotli-kopia och version? Finns en leverantörsbekräftad påverkan för den aktuella distributionsformen? Har någon faktisk effekt på just detta bygge demonstrerats? |
@@ -71,16 +69,16 @@ flowchart TD
 En riskkedja kan alltså vara **viktig att åtgärda utan att ett intrång har skett**. Misstänkt eller bekräftad påverkan på personuppgifter ska däremot hanteras enligt organisationens incidentrutiner; att ett sårbart beroende identifierats är inte i sig belägg för en personuppgiftsincident.
 
 
-**Slutbedömning av denna riskkedja – exempel, inte en verifierad lokal installation:**
+**Slutbedömning av denna riskkedja (exempel, ingen verifierad lokal installation):**
 
 | Fält | Bedömning |
 | --- | --- |
 | **Påverkan** | Safe rapporterar relevanta FME-avkodningsvägar; exakt kopia i det hypotetiska jobbet är inte fastställd. |
-| **Exponering** | Okänd – kontrollera om arbetsytan/Engine verkligen avkodar angriparpåverkade HTTP-svar eller filer. |
+| **Exponering** | Okänd, kontrollera om arbetsytan/Engine verkligen avkodar angriparpåverkade HTTP-svar eller filer. |
 | **Konsekvens** | Krasch kan stoppa överföring. Personuppgiftsåtkomst är en möjlig följd **endast** vid relevant säkerhetseffekt och faktiska behörigheter; inget läckage belagt. |
-| **Prioritet** | **Inventera snarast** om jobbet körs automatiskt mot extern källa och har känsliga behörigheter; genomför relevant leverantörsrättning utan krav på egen CVE-reproduktion. Bekräftad nåbarhet och höga behörigheter motiverar högre akut prioritet. |
+| **Prioritet** | **Inventera snarast** om jobbet körs automatiskt mot extern källa och har känsliga behörigheter; **rätta skyndsamt om en nåbar berörd avkodare bekräftas**. |
 | **Rättning** | FME-/system-/DuckDB-kopian beroende på använd väg; kontrollera CVE-specifik Safe-status och körande version. |
-| **Kvarvarande osäkerhet** | Verklig arbetsyta, avkodare, Engine-konto, isolering, åtkomliga anslutningar och CVE-specifik produktpatch. |
+| **Kvarvarande osäkerhet** | Verklig arbetsyta, decoder, Engine-konto, isolering, åtkomliga anslutningar och CVE-specifik produktpatch. |
 
 ## Exempel: öppna data från API och separat känslig integration
 
@@ -99,7 +97,16 @@ Samma härledning gäller en nedladdning i webbläsare eller Python: **byt ut pr
 **Fler konkreta riskkedjor:** [Frends-integrationer, ArcGIS STAC, Origo/GeoServer/MSSQL, Gaida/FB och EntryScape](verksamhetsfloden.md). Kartlägg vilka rättigheter just den berörda processen faktiskt har; ett annat jobb på samma server innebär inte automatiskt samma behörighet eller minne.
 
 
-**Samlad slutsats för API-exemplet (hypotetiskt):** Det finns en möjlig FME/HTTP-väg, men inte visad påverkan på en viss myndighets-API-hämtning. Kontrollera `Content-Encoding`, faktisk FME Engine och avkodare samt processens egna behörigheter. En jobb-krasch är möjlig; åtkomst till personuppgifter eller andra integrationer kräver ytterligare exploatering **och faktisk delad åtkomst**. Följ relevanta säkerhetsuppdateringar utan krav på lokal CVE-reproduktion; osäkerheten gäller avkodningsväg, isolering och patchstatus.
+**Slutbedömning av denna riskkedja (exempel, ingen verifierad lokal installation):**
+
+| Fält | Bedömning |
+| --- | --- |
+| **Påverkan** | Safe rapporterar FME-HTTP-väg; ingen påverkan på en bestämd myndighets-API-hämtning är visad. |
+| **Exponering** | Om ett attackerbart `Content-Encoding: br`-svar når en berörd decoder; Swagger/HTTPS räcker inte som belägg. |
+| **Konsekvens** | Möjligt jobbavbrott; åtkomst till andra integrationer endast om **samma berörda process/miljö** har relevanta rättigheter och vidare exploatering sker. |
+| **Prioritet** | **Kontrollera HTTP-avkodning och behörighetsseparation först**; vid verifierad aktiv sårbar väg, prioritera rättning efter åtkomliga resurser. |
+| **Rättning** | Den FME- eller OS-bibliotekskopia som faktiskt avkodar svaret; separat filimport kan kräva annan patch. |
+| **Kvarvarande osäkerhet** | Faktiskt svarshuvud, decoder, processisolering och CVE-specifik patchstatus. |
 
 ## Ytterligare tre jämförelser
 
@@ -117,7 +124,7 @@ Detta kort kan fyllas i **utan att använda CVE-utlösande data eller aktiv test
 > - **Angreppsväg:** källa, fil/API/HTTP-ingång, angriparens möjliga kontroll och förtroendegräns.
 > - **Avkodningskedja:** parser → beroenden → exakt Brotli-kopia; vad är bevisat och vad är okänt?
 > - **Påverkad process:** normal driftfunktion, aktiva rättigheter, vilket resultat av CVE som faktiskt är visat.
-> - **Åtkomliga resurser:** verklig åtkomst till personuppgifter, filer, system, hemligheter, databaser och nätverk – pröva isolering.
+> - **Åtkomliga resurser:** verklig åtkomst till personuppgifter, filer, system, hemligheter, databaser och nätverk, pröva isolering.
 > - **Möjlig skada:** separat för krasch/tillgänglighet, belagt röjande och eventuell kodkörning/vidare intrång.
 > - **Nödvändiga skydd:** CVE-rättning, kontroller som bryter indatavägen, minsta privilegium, övervakning och återställning.
 > - **Status:** underlag, osäkerheter, faktisk patchstatus i drift och kvarvarande risk.

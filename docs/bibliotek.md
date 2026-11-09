@@ -1,4 +1,4 @@
-# Bibliotek och runtime – när rättas fel kopia?
+# Bibliotek och körmiljöer: vilken Brotli-kopia ska rättas?
 
 **Källkontroll: 8 november 2026**  
 
@@ -6,7 +6,7 @@
 
 [Till attackvägsöversikten](produktoversikt.md) · [Metod](metod.md)
 
-Den här sidan gäller **bibliotek som kan ingå i GIS-program och många andra applikationer**. Den aktuella CVE:n avser **Brotli-avkodaren i beroendekedjan**; en namngiven applikation blir inte därmed upphov till felet. För att bedöma exploaterbarhet måste man dessutom undersöka om angriparpåverkad komprimerad data kan nå den berörda avkodaren. Berörda leverantörsuppdateringar gäller ändå.
+GIS-program kan få Brotli genom systembibliotek, körmiljöer eller inbyggda kopior. Kontrollera vilken avkodare som används och om angriparpåverkad data kan nå den. Följ leverantörens uppdateringar även om den praktiska exponeringen ännu är okänd.
 
 ## Google Brotli / systembibliotek
 
@@ -14,7 +14,7 @@ Den här sidan gäller **bibliotek som kan ingå i GIS-program och många andra 
 Applikation → delat libbrotlidec.so / brotlidec.dll
 ```
 
-**Berört:** upstream 1.0.3–1.0.9, 1.1.0 och 1.2.0. **Rättat:** 1.0.10, 1.1.1 respektive 1.2.1. Distributioner kan backporta rättningen med gammalt grundversionsnummer. [GitHub advisory](https://github.com/advisories/GHSA-9v8h-qqgm-4m35) · [Debian](https://security-tracker.debian.org/tracker/CVE-2026-111497) · [Ubuntu](https://ubuntu.com/security/CVE-2026-111497).
+**Berört:** upstream 1.0.3 till 1.0.9, 1.1.0 och 1.2.0. **Rättat:** 1.0.10, 1.1.1 respektive 1.2.1. Distributioner kan backporta rättningen med gammalt grundversionsnummer. [GitHub advisory](https://github.com/advisories/GHSA-9v8h-qqgm-4m35) · [Debian](https://security-tracker.debian.org/tracker/CVE-2026-111497) · [Ubuntu](https://ubuntu.com/security/CVE-2026-111497).
 
 **Särskilt villkor:** Programmet måste *använda* den sårbara avkodaren, inte bara ha biblioteket installerat. En rättad systemversion säger inget om separata inbyggda kopior i andra paket.
 
@@ -74,7 +74,7 @@ Java-applikation med Brotli4j
 
 ## DuckDB och andra inbyggda kopior
 
-En del program levererar egen Brotli-källkod inuti ett annat bibliotek, till exempel DuckDB. En [DuckDB-ändring för CVE:n](https://github.com/duckdb/duckdb/issues/27660) gäller den inbyggda kopian. **Fix i källkoden, fix i en DuckDB-release och fix i det GIS-program som levererar DuckDB är tre separata steg.** Den som kör FME måste därför kontrollera Safes aktuella produkter och byggnummer, inte bara ett DuckDB-commit.
+En del program levererar egen Brotli-källkod inuti ett annat bibliotek, till exempel DuckDB. En [DuckDB-ändring för CVE:n](https://github.com/duckdb/duckdb/issues/27660) gäller den inbyggda kopian. En rättning i DuckDB:s källkod behöver ingå i en release och därefter i det GIS-program som levererar DuckDB. Den som kör FME måste därför kontrollera Safes aktuella produkter och byggnummer, inte bara ett DuckDB-commit.
 
 ## Praktisk slutsats
 

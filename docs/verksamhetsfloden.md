@@ -2,9 +2,7 @@
 
 **CVE-2026-111497 · Källkontroll 8 november 2026.** [CVE-mekanismen](cve-mekanism.md) · [HTTP-avkodning](http-angreppsvagar.md) · [Riskkedjan](riskkedja.md) · [Supply chain](supply-chain.md) · [Patchkedjan](patchkedjan.md)
 
-För det generella fallet **”vi hämtar X-data från Y via FME, Frends, ArcGIS, schemalagd Python eller Kettle”**, börja i [dataflöde → avkodare → rätt patch](dataflode-till-patch.md).
-
-Den här sidan börjar i **verksamhetens dataflöde**, inte i en produktvarning. Den ska hjälpa en systemförvaltare att upptäcka en relevant avkodningsväg i integrationsplattformar, GIS-klienter, kartredigering, fastighetsinformationssystem och metadata-publicering. **Ett arbetsflöde eller en namngiven produkt är inte orsaken till den här CVE:n; felet ligger i en berörd Brotli-avkodare som eventuellt används i flödet.** **Ingen av de fem konkreta miljöerna nedan har testats för CVE-utlösning här.** Dokumenterade produktfunktioner är verifierade mot källor; Brotli-vägar som inte har bekräftats i respektive installation anges som **villkorade**.
+Den här sidan börjar i **verksamhetens dataflöde**, inte i en produktvarning. Den ska hjälpa en systemförvaltare att upptäcka en relevant avkodningsväg i integrationsplattformar, GIS-klienter, kartredigering, fastighetsinformationssystem och metadata-publicering. **Ingen av de fem konkreta miljöerna nedan har testats för CVE-utlösning här.** Dokumenterade produktfunktioner är verifierade mot källor; Brotli-vägar som inte har bekräftats i respektive installation anges som **villkorade**.
 
 **Två olika kedjor behöver alltid följas:**
 
@@ -13,13 +11,13 @@ Den här sidan börjar i **verksamhetens dataflöde**, inte i en produktvarning.
 
 | Arbetsflöde | Rimligt att undersöka | Det som **inte** följer automatiskt |
 | --- | --- | --- |
-| [Frends-integrationer](#1-frends--http-och-integrationer) | HTTP-svar, filhämtning, HTTP-trigger, .NET-agent, rättigheter och hemligheter | Att .NET eller en HTTP-task alltid avkodar Brotli |
-| [ArcGIS Pro + Lantmäteriets STAC](#2-arcgis-pro--lantmäteriets-stac) | Separata anrop för STAC-metadata och COG/rasterfil, HTTP-stack, GDAL och eventuellt filformat | Att STAC i sig använder Brotli eller att COG/LAZ är Brotli-format |
+| [Frends-integrationer](#1-frends-http-och-integrationer) | HTTP-svar, filhämtning, HTTP-trigger, .NET-agent, rättigheter och hemligheter | Att .NET eller en HTTP-task alltid avkodar Brotli |
+| [ArcGIS Pro + Lantmäteriets STAC](#2-arcgis-pro-lantmäteriets-stac) | Separata anrop för STAC-metadata och COG/rasterfil, HTTP-stack, GDAL och eventuellt filformat | Att STAC i sig använder Brotli eller att COG/LAZ är Brotli-format |
 | [Origo-redigering → GeoServer → MSSQL](#3-origo-redigering--geoserver--mssql) | Klientens svar, serverns eventuella HTTP-avkodning och tillägg; databasbehörighet som möjlig följd | Att WFS-T, SQL Server eller geometriändring i sig utlöser Brotli-CVE:n |
 | [Gaida / SBI (tidigare FB)](#4-gaida--sbi-före-detta-fb) | Lantmäteriets direkt-API:er, schemalagda importer och faktisk klient-/importparser | Att en lokal FB-databas är sårbar bara för att den lagrar importerad information |
 | [Publicera metadata via EntryScape-API](#5-publicera-öppna-data-via-entryscape-api) | HTTP-svaret på POST/PUT, vilken klient som tar emot det; separat serverparser vid komprimerad inkommande kropp | Att `POST`/`PUT`, DCAT eller EntryScape i sig betyder Brotli-avkodning |
 
-## 1. Frends – HTTP och integrationer
+## 1. Frends: HTTP och integrationer
 
 **Belagd produktfunktion:** Frends har `HTTP.Request`, `DownloadFile` och andra HTTP-tasks; integrationsprocesser körs i Frends Agents på .NET och kan startas med en HTTP-trigger. Ett HTTP-anrop kan hämta data från en extern källa och skriva dem till ett annat system. [Frends HTTP-integrationer](https://tasks.frends.com/integrations/HTTP) · [Frends teknisk plattform](https://docs.frends.com/hybrid-integration-architecture/technologies) · [HTTP-trigger](https://docs.frends.com/reference/triggers/http-trigger).
 
@@ -39,11 +37,20 @@ Alternativt: extern POST → HTTP-trigger → begärandekropp
 - **Skydd och patch:** kontrollera aktuell Frends- och .NET-runtime, HTTP-konfiguration, rättad Brotli-kopia, separerade agents/konton, minsta privilegium, TLS, övervakning och eventuell separat filparser. Utpeka inte en Frends-patch utan Frends-specifikt besked.
 
 
-**Samlad bedömning – Frends (hypotetiskt flöde):** Ingen Frends-specifik CVE-påverkan har fastställts. Nästa kontroll är aktiv **HTTP-task/Agent**, om `br`-avkodning verkligen sker och vilken .NET-/native-version som används. En krasch kan stoppa ett jobb; annan skada kräver ytterligare effekt och faktiska Agent-behörigheter. Uppdatera relevant komponent enligt leverantörsbesked; en Frends-produktpatch ska inte pekas ut utan källstöd.
+**Slutbedömning av denna riskkedja (exempel, ingen verifierad lokal installation):**
 
-## 2. ArcGIS Pro – Lantmäteriets STAC
+| Fält | Bedömning |
+| --- | --- |
+| **Påverkan** | Ingen Frends-specifik CVE-påverkan visad; .NET-koppling är inte samma sak som en använd sårbar avkodare. |
+| **Exponering** | Möjlig vid aktiv avkodning av angriparpåverkade `br`-svar, filer eller begäranden; faktisk task/Agent okänd. |
+| **Konsekvens** | Jobbavbrott; vid ytterligare kompromettering kan resurser som agentkontot faktiskt når påverkas. |
+| **Prioritet** | **Inventera aktiva HTTP-tasks och Agent-version först**; högre åtgärdsprioritet när berörd kodväg och känslig åtkomst bekräftas. |
+| **Rättning** | .NET-runtime eller medföljande komponent/Frends-agent enligt faktiskt beroende; verifiera rättningen i processen. |
+| **Kvarvarande osäkerhet** | Agentens avkodare, konfiguration, installerade .NET-artefakter och isolering från andra integrationer. |
 
-**Belagd produktfunktion:** ArcGIS Pro kan skapa `.astac`-anslutningar till STAC API. Esri Sverige beskriver hur Pro 3.5 ansluter till Lantmäteriets STAC-kataloger med **separat Cloud Storage Connection** för att läsa exempelvis markhöjdmodell eller ortofoto. STAC-API:et returnerar katalog-/objektinformation; själva rasterfilen läses via den länk som anges för objektet. [Esris instruktion](https://www.esri.se/arcgis-bloggen/stac-lantmateriet-arcgis-pro/) · [ArcGIS Pro – STAC](https://doc.esri.com/en/arcgis-pro/latest/help/data/imagery/create-a-stac-connection.html).
+## 2. ArcGIS Pro: Lantmäteriets STAC
+
+**Belagd produktfunktion:** ArcGIS Pro kan skapa `.astac`-anslutningar till STAC API. Esri Sverige beskriver hur Pro 3.5 ansluter till Lantmäteriets STAC-kataloger med **separat Cloud Storage Connection** för att läsa exempelvis markhöjdmodell eller ortofoto. STAC-API:et returnerar katalog-/objektinformation; själva rasterfilen läses via den länk som anges för objektet. [Esris instruktion](https://www.esri.se/arcgis-bloggen/stac-lantmateriet-arcgis-pro/) · [ArcGIS Pro, STAC](https://doc.esri.com/en/arcgis-pro/latest/help/data/imagery/create-a-stac-connection.html).
 
 ```text
 STAC API (katalog och objektmetadata i HTTP-svar)
@@ -60,7 +67,16 @@ STAC API (katalog och objektmetadata i HTTP-svar)
 - **Skydd och patch:** följ Esris patchbesked för aktuell ArcGIS Pro/.NET-uppsättning, håll andra berörda native-bibliotek uppdaterade, använd korrekta HTTPS-/autentiseringsinställningar, avgränsa rättigheter och kontrollera faktisk filparser. Lantmäteriets STAC-endpoint är ingen automatiskt verifierad skadlig källa.
 
 
-**Samlad bedömning – ArcGIS Pro/STAC (hypotetiskt flöde):** Esri bekräftar påverkan i delar av ArcGIS, **inte** CVE-utlösning genom denna specifika STAC-anslutning. Kontrollera **både metadataanrop och separat filhämtning**, inklusive respektive avkodare och lokala behörigheter. Följ Esris rekommenderade produkt-/runtime-rättningar **utan att invänta STAC- eller exploittest**; osäkerheten gäller dataväg och installationens patchläge.
+**Slutbedömning av denna riskkedja (exempel, ingen verifierad lokal installation):**
+
+| Fält | Bedömning |
+| --- | --- |
+| **Påverkan** | Esri bekräftar påverkan i delar av ArcGIS, men STAC-vägen i ArcGIS Pro är inte produktspecifikt utlösningsverifierad. |
+| **Exponering** | Två möjliga steg: HTTP-svar för STAC-metadata och separata asset-/filhämtningar; båda decoder-vägarna är okända. |
+| **Konsekvens** | Avbruten kartinhämtning; annan skada endast vid faktisk ytterligare exploatering inom programmets åtkomst. |
+| **Prioritet** | **Kontrollera båda avkodningsstegen och produktversionen**; prioritera patch om berörd kod nås av extern data. |
+| **Rättning** | Esris relevanta produktuppdatering och eventuell separat .NET/native-kopia; kontrollera specifik Pro-patchstatus. |
+| **Kvarvarande osäkerhet** | Vilken nätverks-/rasterparser som verkligen används, dess biblioteksversion och produktens patchläge. |
 
 ## 3. Origo-redigering → GeoServer → MSSQL
 
@@ -77,13 +93,22 @@ SEPARAT CVE-fråga: Finns en inkommande eller utgående HTTP-/filväg
 ```
 
 - **Angreppsväg:** en vanlig WFS-T-redigering med XML och databaslagring är **inte i sig en Brotli-trigger**. `Content-Encoding: br` på ett svar till webbläsaren innebär klientavkodning; inkommande `br`-komprimerad begäran kräver en särskilt aktiv serveravkodare. Granska sådan funktion innan GeoServer anses berört. Origo Server/Node kan vara en **separat** komponent om redigeringsflödet faktiskt passerar den; det får inte antas.
-- **Påverkad process:** webbläsare, relevant proxy, GeoServer/JVM eller ett tillägg – endast den som verkligen avkodar. **MSSQL lagrar data i kedjan men är inte visat som CVE-berörd Brotli-avkodare.**
+- **Påverkad process:** webbläsare, relevant proxy, GeoServer/JVM eller ett tillägg, endast den som verkligen avkodar. **MSSQL lagrar data i kedjan men är inte visat som CVE-berörd Brotli-avkodare.**
 - **Åtkomliga resurser:** om GeoServer-processen skulle komprometteras, kontrollera datastore-kontots läs-/skrivrättigheter till berörda tabeller, publicerade lager, konfigurationsfiler och andra anslutningar. Webbläsarens behörigheter skiljer sig från serverns.
 - **Möjlig skada:** en vanlig obehörig WFS-T-transaktion kan ändra data **utan någon CVE-utlösning**. En hypotetiskt komprometterad server skulle eventuellt kunna skriva eller läsa enligt sina faktiska rättigheter; en krasch kan störa kartredigering. Detta är skilda hot.
-- **Skydd och patch:** skydda `WFS.Transaction` med autentisering, tjänste-/lagerrättigheter och databasprincipen minsta privilegium; separera läs- och skrivrättigheter när det går. Kontrollera eventuella Brotli-moduler och uppdatera **den avkodande komponenten** om berörd – inte MSSQL bara för att den är sista länken. Det här är också [GeoServers officiella rekommendation](https://docs.geoserver.org/main/en/user/production/config/).
+- **Skydd och patch:** skydda `WFS.Transaction` med autentisering, tjänste-/lagerrättigheter och databasprincipen minsta privilegium; separera läs- och skrivrättigheter när det går. Kontrollera eventuella Brotli-moduler och uppdatera **den avkodande komponenten** om berörd, inte MSSQL bara för att den är sista länken. Det här är också [GeoServers officiella rekommendation](https://docs.geoserver.org/main/en/user/production/config/).
 
 
-**Samlad bedömning – Origo/GeoServer/MSSQL (hypotetiskt flöde):** WFS-T och SQL-skrivning bevisar ingen Brotli-påverkan. **Säkra WFS-T-behörigheter oavsett CVE.** För Brotli-frågan behöver den faktiskt avkodande klienten, proxyn, servermodulen eller tillägget identifieras och vid behov uppdateras. MSSQL:s roll som datalager är inte i sig en Brotli-angreppsväg; databasrättigheter blir följdfråga först vid verklig serverpåverkan.
+**Slutbedömning av denna riskkedja (exempel, ingen verifierad lokal installation):**
+
+| Fält | Bedömning |
+| --- | --- |
+| **Påverkan** | Vanlig WFS-T/SQL-skrivning visar **ingen** Brotli-CVE-påverkan; GeoServer/klient/proxy kan ha separata, outredda avkodare. |
+| **Exponering** | Endast om en berörd komponent avkodar angriparpåverkad `br`-begäran, `br`-svar eller fil. |
+| **Konsekvens** | Krasch i avkodande process; vid faktisk serverkompromettering påverkas bara databasåtkomst som tjänstekontot medger. |
+| **Prioritet** | **Säkra WFS-T-behörigheter oavsett CVE**; inventera eventuell Brotli-kedja innan CVE-patch prioriteras. |
+| **Rättning** | Rätta **avkodande** klient/proxy/Java-native-bibliotek om berört; inte MSSQL enbart för att det lagrar data. |
+| **Kvarvarande osäkerhet** | Faktisk HTTP-avkodning, tillägg, databasrättigheter och eventuell berörd Java/native-kopia. |
 
 ## 4. Gaida / SBI (före detta FB)
 
@@ -104,7 +129,16 @@ B. Schemalagd avisering → nedladdat underlag → importkomponent
 - **Skydd och patch:** granska källval, schemalagda jobb, installerade komponenter och underliggande .NET/Java/native-avkodare; verifiera rättning hos respektive leverantör; isolera importkonton och begränsa databasrättigheter. Utgå inte från att en rättning av en annan GIS-produkt automatiskt rättar Gaida.
 
 
-**Samlad bedömning – Gaida/SBI (hypotetiskt flöde):** Ingen Gaida-specifik berörd Brotli-avkodare har verifierats. Börja med att skilja **aktiv direkt-API-fråga** från **schemalagd FB-import** och identifiera klient-/importparsern. En eventuell krasch kan avbryta avisering; åtkomst till fastighetsdata förutsätter ytterligare säkerhetseffekt och faktiska rättigheter. Begär versionsbundet besked innan produktspecifik CVE-påverkan anges.
+**Slutbedömning av denna riskkedja (exempel, ingen verifierad lokal installation):**
+
+| Fält | Bedömning |
+| --- | --- |
+| **Påverkan** | Ingen Gaida-specifik Brotli-påverkan bekräftad; direkt-API och FB-import är olika möjliga vägar. |
+| **Exponering** | Okänd, kräver faktisk `br`-avkodning i klient/import av angriparpåverkad data. |
+| **Konsekvens** | Avbruten eller försenad avisering; uppgiftsläsning/ändring endast vid vidare kompromettering och faktisk åtkomst. |
+| **Prioritet** | **Inventera aktiv direktfråga eller schemalagt importjobb först**; bekräftad sårbar avkodning prioriteras efter konto och dataskydd. |
+| **Rättning** | Rätta den aktiva HTTP-klienten/importparsern och dess underliggande paket eller produkt när belagt. |
+| **Kvarvarande osäkerhet** | Gaidas levererade bibliotek, använda dataformat, schemaläggning och produktpatchstatus. |
 
 ## 5. Publicera öppna data via EntryScape API
 
@@ -128,7 +162,16 @@ CVE-väg 2: API-servern avkodar inkommande Content-Encoding: br
 - **Skydd och patch:** uppdatera faktiskt avkodande klient/runtime, skydda och begränsa skrivtoken, ge endast avsedda katalogrättigheter, använd korrekt verifierad HTTPS och logga publiceringsförändringar. Om servern tar emot komprimerad request-body, granska exakt parser och patch den; annars finns ingen visad CVE-väg genom den punkten.
 
 
-**Samlad bedömning – EntryScape (hypotetiskt flöde):** `POST`/`PUT` med metadata bevisar inte Brotli. Kontrollera först om **avsändarens HTTP-klient avkodar API-svaret** eller om **servern avkodar en inkommande `br`-kropp**; det är olika processer och möjliga rättningar. Begränsa skrivtoken och uppdatera relevant avkodare om den påvisas; EntryScapes beroenden och CVE-patchstatus är inte fastställda här.
+**Slutbedömning av denna riskkedja (exempel, ingen verifierad lokal installation):**
+
+| Fält | Bedömning |
+| --- | --- |
+| **Påverkan** | Varken ett metadata-POST eller EntryScape som produktnamn bekräftar sårbar Brotli-avkodning. |
+| **Exponering** | Två möjliga vägar: avkodning av **API-svaret hos avsändaren** eller av **komprimerad begäran hos mottagaren**; båda okända. |
+| **Konsekvens** | Jobbavbrott; vid ytterligare kompromettering kan katalogskrivtoken och andra faktiska processrättigheter bli relevanta. |
+| **Prioritet** | **Kontrollera först avkodning på rätt sida av POST:et** och begränsa skrivtoken; prioritera patch om berörd decoder används. |
+| **Rättning** | Rätta avsändarens HTTP-runtime/bibliotek eller mottagarens parser beroende på verifierad kodväg. |
+| **Kvarvarande osäkerhet** | Avsändar- och serverimplementation, konkreta `Content-Encoding`-huvuden, körkonto och installerad rättning. |
 
 ## Praktisk slutsats för nya flöden
 
@@ -138,6 +181,6 @@ CVE-väg 2: API-servern avkodar inkommande Content-Encoding: br
 2. **CVE-vägen finns:** du har verifierat att just den körande processen tar angriparpåverkade **Brotli-komprimerade byte** till en **berörd avkodare**. Detta kräver mer än produktnamn, API-användning eller `Accept-Encoding: br`.
 3. **Följdskadan är möjlig:** om felvillkoret *och* en faktisk säkerhetseffekt uppstår, kan den påverkade eller komprometterade processen nå särskilda resurser. Krasch är inte liktydigt med RCE eller dataläckage.
 
-**Patchbeslut:** Installera säkerhetsuppdateringar som leverantören rekommenderar för er berörda produkt och version enligt ordinarie säkerhetsprocess – **vänta inte på egen reproduktion av CVE:n eller fullständig kartläggning av en angreppsväg**. Undersök vilken avkodarkopia och distributionsform som används (systembibliotek, inbyggd runtime, DLL, container, tillägg eller produktpatch) för att träffa rätt komponent. Nåbarhet, exponering och verksamhetskonsekvenser avgör **vad som prioriteras först och vilka tillfälliga skydd som behövs**, inte om en relevant rekommenderad rättning ska hoppas över. För program med okänd implementation: inventera eller begär versionsbunden SBOM/VEX-/säkerhetsinformation från leverantören. [Allmän metod](ny-programvara.md) · [Patchkedjan](patchkedjan.md).
+**Patchbeslut:** kontrollera först **berörd avkodarkopia och distributionsform** (systembibliotek, inbyggd runtime, DLL, container, tillägg eller leverantörspatch). Om den är berörd ska rättning av just den kopian prioriteras; välj kompenserande skydd medan rättning saknas. För program med okänd implementation: inventera eller begär versionsbunden SBOM/VEX-/säkerhetsinformation från leverantören. [Allmän metod](ny-programvara.md) · [Patchkedjan](patchkedjan.md).
 
 **Publiceringsgräns:** arbetsflödena ovan är *generiska exempel*. Verkliga organisationsadresser, API-tokens, databasscheman, nätverksregler och faktiska exploaterbara endpoints ska inte publiceras. För den egna verksamhetens känsliga detaljer krävs en intern riskanalys.

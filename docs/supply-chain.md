@@ -2,7 +2,7 @@
 
 **Källunderlag kontrollerat 8 november 2026.** [Översikt](../README.md) · [Metod och bevisgränser](metod.md) · [Riskkedja](riskkedja.md) · [Patchkedja](patchkedjan.md).
 
-Den här sidan förklarar hur **CVE-2026-111497** kan följa med genom legitima, ofta brett använda programvaruberoenden. **Grundfelet finns i Brotli, medan produkterna kan påverkas genom koden de bygger på eller distribuerar.** Det innebär inte att deras utvecklare har påvisats ha introducerat felet, men det gör inte relevanta rättningar mindre viktiga. Detta handlar om **spridning av ett sårbart bibliotek i programvara**, inte om ett påvisat angrepp mot programvaruleveranskedjan. Exemplen är inte en uttömmande lista över påverkade produkter.
+Den här sidan förklarar hur **CVE-2026-111497** kan följa med genom legitima programvaruberoenden. Det handlar om **spridning av ett sårbart bibliotek i programvara**, inte om att ett angrepp mot själva programvaruleveranskedjan har påvisats. Exemplen är inte en uttömmande lista över påverkade produkter.
 
 **Vad vet vi?** Felet finns i Googles Brotli-avkodare. Specifik felaktig komprimerad indata kan orsaka en *out-of-bounds write* (skrivning utanför en avsedd minnesbuffert). Berörd kod kan distribueras som systembibliotek, inbyggd kopia eller del av ett annat beroende. [CVE-posten](https://www.cve.org/CVERecord?id=CVE-2026-111497).
 
@@ -68,8 +68,8 @@ Det är tre skilda statusar. En uppströmsfix rättar inte automatiskt en redan 
 
 ## 6. När produkten saknar säkerhetsbesked
 
-Börja med vad programmet faktiskt gör och vilken del som utför eventuell avkodning. Be leverantören om versionsbundet besked, beroendeinformation eller en relevant VEX-bedömning. Vid egen behörig inventering kan paketlista, SBOM, byggrecept och uppgifter om körande bibliotek ge stöd. Okänd status ska redovisas som **okänd – undersök**, inte som ”säker” eller ”sårbar”. [Praktisk inventering av okända program](ny-programvara.md) · [Från dataflöde till patch](dataflode-till-patch.md).
+Börja med vad programmet faktiskt gör och vilken del som utför eventuell avkodning. Be leverantören om versionsbundet besked, beroendeinformation eller en relevant VEX-bedömning. Vid egen behörig inventering kan paketlista, SBOM, byggrecept och uppgifter om körande bibliotek ge stöd. Okänd status ska redovisas som **okänd, undersök**, inte som ”säker” eller ”sårbar”. [Praktisk inventering av okända program](ny-programvara.md) · [Från dataflöde till patch](dataflode-till-patch.md).
 
-Exempelvis är **myCarta** här endast ett program att *inventera*: ingen myCarta-specifik Brotli-påverkan fastställs. Beroenden kan dessutom skilja mellan olika produktvarianter, tillägg och paketeringar. Produktnamnet ensamt räcker inte som underlag för en CVE-slutsats.
+Exempelvis är **myCarta** här endast ett program att *inventera*: ingen myCarta-specifik Brotli-påverkan fastställs. [7-Zip och 7-Zip ZS](arkivverktyg.md) visar tvärtom varför en fork eller ett tillägg kan innehålla en annan avkodare än huvudprogrammet. Produktnamnet ensamt räcker inte som underlag för en CVE-slutsats.
 
 **Gräns för egna kontroller:** börja med dokumentation, paket- och versionsuppgifter. Skicka inte CVE-utlösande indata till externa eller produktionssatta system. Nya produktspecifika fynd rapporteras konfidentiellt enligt leverantörens säkerhetspolicy. [Metod och publiceringsgräns](metod.md).

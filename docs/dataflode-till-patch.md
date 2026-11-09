@@ -1,4 +1,4 @@
-# Vi hämtar X via Y – vad behöver vi kontrollera?
+# Vi hämtar X via Y: vad behöver vi kontrollera?
 
 **CVE-2026-111497 · Praktisk inventering från dataflöde till patch. Källkontroll: 8 november 2026.**
 
@@ -10,11 +10,11 @@ Du behöver **inte veta vad Brotli, DuckDB eller Arrow är i förväg**. Börja 
 
 | Fråga i rätt ordning | Vad du faktiskt undersöker | Vad svaret betyder |
 | --- | --- | --- |
-| **1. Vilka data hämtas och varifrån?** | API-URL/tjänst, WFS/STAC, exportfil eller delad mapp; dataägare; hur mycket källan kan påverkas av användare eller tredje part. | Bestämmer förtroendegränsen – en betrodd myndighet kan ha komprometterad datakälla utan att varje svar är farligt. |
+| **1. Vilka data hämtas och varifrån?** | API-URL/tjänst, WFS/STAC, exportfil eller delad mapp; dataägare; hur mycket källan kan påverkas av användare eller tredje part. | Bestämmer förtroendegränsen, en betrodd myndighet kan ha komprometterad datakälla utan att varje svar är farligt. |
 | **2. Hur kommer byte in?** | HTTP **svar** till klienten, HTTP **begäran** till servern, nedladdad fil eller filens interna komprimering. Ett POST från dig är inte samma väg som svaret på POST:et. | Bestämmer vem som skulle avkoda och på vilken sida av anslutningen. |
 | **3. Vem kör det verkliga jobbet?** | Webbläsare, FME Engine, Frends Agent, ArcGIS Pro-process, `python.exe`, Kettle/Pentaho Java-process, proxy eller server. För schemalagda jobb: **exakt körbar fil och körkonto**. | Schemaläggaren och Swagger är vanligtvis **inte** den process som avkodar svaret. |
 | **4. Förekommer Brotli på just den vägen?** | På HTTP-nivå: svarets faktiska `Content-Encoding: br` och klientens avkodningsstöd. På filnivå: exempelvis en Parquet-kolumn med `BROTLI`. Kontrollera även proxy- och mellanlagers avkodning. | `Accept-Encoding: br` är ett erbjudande; `Content-Encoding: br` visar ett komprimerat svar, **inte** vilken implementation som använts eller om den är sårbar. |
-| **5. Vilket bibliotek avkodar?** | HTTP-klient och version; Pythonpaket, .NET-API, Java-JAR/native-bibliotek, Node-runtime, inbyggd Arrow/DuckDB eller annan avkodare. Följ indirekta beroenden. | En installerad Brotli-kopia och en **använd** Brotli-kopia är inte samma sak. |
+| **5. Vilket bibliotek avkodar?** | HTTP-klient och version; Pythonpaket, .NET-API, Java-JAR/native-bibliotek, Node-runtime, inbyggd Arrow/DuckDB eller annan decoder. Följ indirekta beroenden. | En installerad Brotli-kopia och en **använd** Brotli-kopia är inte samma sak. |
 | **6. Är just den kopian berörd och nåbar?** | Paket-/runtimeversion, leverantörsbesked, anropad kodväg, om någon kan påverka den komprimerade datan. Dokumentera **bekräftat**, **möjligt** eller **okänt**. | Du kan motivera en patchprioritet utan att påstå att CVE-utlösning, läckage eller RCE är bevisad i programmet. |
 | **7. Vad får processen åtkomst till?** | Körkonto, API-token, anslutningsuppgifter, databaser, nätverk, personuppgifter, skrivytor och jobbens tillgänglighetskrav. | En hypotetisk kompromettering bedöms efter faktiska behörigheter. Krasch, minnesröjande och RCE är **skilda scenarier**. |
 | **8. Var ska rättningen sitta?** | Rättat Pythonhjul, Java-/native-JAR, Windows-/Linuxpaket, produktpatch, .NET-/Node-runtime, self-contained-bygge eller containerimage. | Verifiera **den körande** komponenten efter ombyggnad/omstart, inte bara vad som går att ladda ner. |
@@ -30,12 +30,12 @@ API svarar Content-Encoding: br
 
 Om HTTP-svaret använder `gzip` eller saknar `Content-Encoding` finns ingen påvisad Brotli-avkodning **i just det HTTP-steget**. En senare filimport kan ändå vara relevant. `Content-Type: application/json`, `Swagger/OpenAPI`, `GET`, `POST`, `STAC` eller `HTTPS` visar inte i sig om Brotli används. [HTTP-fördjupning](http-angreppsvagar.md) · [Filvägar](fil-angreppsvagar.md).
 
-## 2. Samma data – olika program: kontrollera här
+## 2. Kontrollera varje program som hanterar samma data
 
 | Om hämtningen sker i … | Börja i den faktiska körningen | Vad avgör CVE-exponeringen? | Hur kan rättningen nå processen? |
 | --- | --- | --- | --- |
 | **FME Form/Flow** | Workspace och transformer (`HTTPCaller`, `OpenAPICaller`, filimport etc.), faktiskt exekverande FME Engine, version och anslutningar. | Vilken HTTP-/filkodväg avkodar Brotli, via vilken komponent? Kartlägg andra anslutningar som just Engine-processen kan nå. | Säkerhetsfix i **rätt FME-utgåva**, eventuellt särskild system-Brotli; verifiera mot Safe. Vi har **inte** självständigt verifierat CVE-specifika rättade FME-byggnummer i tillgängligt leverantörsunderlag. [FME](fme.md). |
-| **Frends** | Process, `HTTP.Request`/nedladdning/HTTP-trigger, **vilken Agent och vilken task-version** som körs. | Är Brotli-komprimerade svar eller begäranden faktiskt konfigurerade att avkodas? Följer tasken .NET:s `HttpClient`-väg, ett eget bibliotek eller annan kod? **Okänt tills kontrollerat**. | Kontrollera Frends-leverans och .NET-runtime **om det är den berörda avkodaren**; självständig applikationsdistribution kan kräva ny agent/build. Ingen Frends-specifik rättning verifierad här. [Frends](verksamhetsfloden.md#1-frends--http-och-integrationer). |
+| **Frends** | Process, `HTTP.Request`/nedladdning/HTTP-trigger, **vilken Agent och vilken task-version** som körs. | Är Brotli-komprimerade svar eller begäranden faktiskt konfigurerade att avkodas? Följer tasken .NET:s `HttpClient`-väg, ett eget bibliotek eller annan kod? **Okänt tills kontrollerat**. | Kontrollera Frends-leverans och .NET-runtime **om det är den berörda decodern**; självständig applikationsdistribution kan kräva ny agent/build. Ingen Frends-specifik rättning verifierad här. [Frends](verksamhetsfloden.md#1-frends-http-och-integrationer). |
 | **ArcGIS Pro / STAC** | `.astac`-anslutning, metadataanrop, separat asset-URL/rasterhämtning, programversion. | Kontrollpunkt A för **varje** HTTP-svar; kontrollpunkt B vid eventuell fil-/rasteravkodning. Undersök **vilken** native-/HTTP-/ .NET-kodväg som faktiskt körs. | Esris **produktpatch** där relevant, separat .NET-runtime och andra berörda bibliotek. Ingen bevisad CVE-trigger enbart av STAC. [ArcGIS](arcgis.md). |
 | **Python via Aktivitetsschemaläggaren** | I Windows Aktivitetsschemaläggaren: aktivitetens **Åtgärder** → `Program/script`, argument och **Starta i**, körkonto och den Pythonmiljö som faktiskt startas. | Kör HTTP-koden med `requests`/`urllib3` eller annan klient? Är `Brotli`/`brotlicffi` installerade och används de för `br`-svar? Läser skriptet senare Parquet via PyArrow eller annan parser? | Uppdatera **paketen i just den interpreter/miljön** (och eventuella native-bibliotek); starta om jobben. Att Python körs via Task Scheduler gör inte .NET-patchen till dess automatiska lösning. |
 | **PowerShell 7 via Aktivitetsschemaläggaren** | Kontrollera om aktiviteten kör `pwsh.exe` (PowerShell 7) och vilka `Invoke-WebRequest`/`Invoke-RestMethod`-anrop den gör. Skilj från schemalagd `python.exe`. | Microsoft anger att dessa PowerShell 7-kommandon har **automatisk HTTP-svarsavkodning på som standard**, till skillnad från standardkonfigurerad .NET `HttpClient`. Kontrollera även nedladdade filers parser. | Microsoft anger rättade PowerShell-utgåvor **7.4.22 / 7.5.13 / 7.6.9**; uppdatera den PowerShell-installation som jobbet faktiskt använder. [MSRC](https://www.microsoft.com/en-us/msrc/blog/2026/10/patch-now-php2shell-brotli-emudhra-guidance-for-customers). |
@@ -71,13 +71,13 @@ Microsoft släppte **25 oktober 2026** en separat säkerhetsuppdatering för **C
 - **Self-contained app:** bygg om och distribuera om appen mot rättad runtime; en patchad delad runtime på servern ändrar inte automatiskt dess medföljande kod.
 - **NativeAOT:** uppdatera SDK, rätta explicita compiler-/runtime-pack-referenser och publicera/distribuera om exekverbar fil. En delad runtime på maskinen kan inte rätta kod som redan kompilerats in.
 - **Leverantörsprodukt (t.ex. agent eller GIS-program):** kontrollera med leverantören om .NET är paketerad/inbyggd och **vilken** artefakt som ska uppdateras. Uppdaterad .NET ersätter inte en **separat produktpatch** eller en annan sårbar native-kopia.
-- **Java eller Python utan .NET i denna kodväg:** patcha den **rätta avkodaren**, inte .NET bara för att den finns på Windowsdatorn.
+- **Java eller Python utan .NET i denna kodväg:** patcha den **rätta decodern**, inte .NET bara för att den finns på Windowsdatorn.
 
 Temporärt kan man **om funktionen redan är aktiverad** stänga av hantering av angriparstyrd Brotli på den specifika vägen, innan någon sårbar avkodare körs. **Slå inte på request-dekomprimering för att kunna stänga av den** och räkna inte med att bara ändra `Accept-Encoding` stoppar alla felaktiga `br`-svar. Microsoft rekommenderar att själva runtime-/applikationsfixen installeras. [Advisory och förutsättningar](https://github.com/dotnet/runtime/security/advisories/GHSA-p3jp-9v83-76w9).
 
 ## 4. Slutsatsen för ditt eget X → Y-jobb
 
-Skriv ett **kort resultat för varje faktisk avkodningspunkt** – inte en produktgissning:
+Skriv ett **kort resultat för varje faktisk avkodningspunkt**, inte en produktgissning:
 
 > - **Data/källa och mottagare:** …
 > - **Program, aktivitet och körande process/konto:** …
@@ -88,16 +88,8 @@ Skriv ett **kort resultat för varje faktisk avkodningspunkt** – inte en produ
 > - **Patch på rätt nivå:** tillgänglig / installerad / verifierad efter omstart.
 > - **Tillfälliga skydd och kvarstående osäkerhet:** …
 
-**Uppdatering ska inte invänta ett färdigt testresultat.** Om leverantören redan rekommenderar en säkerhetsuppdatering för er produktversion genomförs den enligt säkerhetsrutinen medan den tekniska kartläggningen pågår. Inventeringen avgör vilken komponent som ska verifieras och vilka flöden som behöver prioriteras först. [Patchstatus och källor](patchkedjan.md).
+**Exempel: schemalagt Pythonjobb som hämtar öppna data och sparar dem i en databas:** URL:en eller Swagger-dokumentet är inte tillräcklig information. Ta reda på faktisk Python-interpreter, HTTP-klient, `Content-Encoding`, eventuell filimport, avkodare, paketversion och jobbets databasrättigheter. En angripare behöver fortfarande kunna få relevanta felaktiga data hela vägen till den sårbara avkodaren. **Enbart att jobbet har databasåtkomst visar inte intrång eller personuppgiftsläcka.**
 
-### Samla resultatet i sex fält
-
-Efter kontrollerna ovan: skriv **en slutsats per faktiskt avkodningssteg**, även om samma jobb har både HTTP-Brotli och intern Brotli i en fil. Använd samma rubriker som i [riskkedjans slutbedömning](riskkedja.md#slutbedömning--från-inventering-till-åtgärdsbeslut): **Påverkan, Exponering, Konsekvens, Prioritet, Rättning, Kvarvarande osäkerhet**. Prioritera **åtgärden** (*rätta skyndsamt*, *inventera snarast*, *ordinarie uppdatering*, *verifiera patch*) framför en påhittad risksiffra.
-
-**Exempel – schemalagd Pythonhämtning där Brotli ännu inte är undersökt:** Påverkan: **okänd**. Exponering: automatisk hämtning, men `br` och avkodare okända. Konsekvens: jobbavbrott möjligt om avkodare är berörd; RCE ej visad. Prioritet: **inventera Pythonmiljön och avkodningen först**. Rättning: välj paket/build först när den verkliga kopian är identifierad. Kvarvarande osäkerhet: bibliotek, inkommande svar och resursbehörigheter. Detta är inte en bekräftad Kettle-, Python- eller Frends-sårbarhet.
-
-**Exempel – schemalagt Pythonjobb som hämtar öppna data och sparar dem i en databas:** URL:en eller Swagger-dokumentet är inte tillräcklig information. Ta reda på faktisk Python-interpreter, HTTP-klient, `Content-Encoding`, eventuell filimport, avkodare, paketversion och jobbets databasrättigheter. En angripare behöver fortfarande kunna få relevanta felaktiga data hela vägen till den sårbara avkodaren. **Enbart att jobbet har databasåtkomst visar inte intrång eller personuppgiftsläcka.**
-
-**Exempel – Kettle hämtar samma data:** samma frågor om API-svar och filformat, men den avkodande komponenten kan ligga i Kettles Java-/native-beroenden. Du ska **inte** utgå från att Microsofts .NET-fix rättar en Java-installation – och inte heller påstå att Kettle är CVE-sårbart innan beroende och indataväg är fastställda.
+**Exempel: Kettle hämtar samma data:** samma frågor om API-svar och filformat, men den avkodande komponenten kan ligga i Kettles Java-/native-beroenden. Du ska **inte** utgå från att Microsofts .NET-fix rättar en Java-installation, och inte heller påstå att Kettle är CVE-sårbart innan beroende och indataväg är fastställda.
 
 **Samla inte in åtkomsttoken eller personuppgifter i diagnostikloggen. Skicka inte manipulerad Brotli-data till en levande extern tjänst för att prova CVE-utlösning.** Ofarlig versions-, konfigurations- och beroendeinventering räcker långt för att välja korrekt uppgradering eller dokumentera vad som återstår att verifiera.

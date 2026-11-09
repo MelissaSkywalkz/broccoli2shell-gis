@@ -1,20 +1,39 @@
-# QGIS – filinläsning, HTTP-svar och flera Brotli-kopior
+# QGIS: filer, HTTP och separata Brotli-kopior
 
 **Kontrollerat: 8 november 2026 · Bedömningen gäller separata indatavägar**  
 
-**Var finns CVE-felet?** I **Brotli-avkodaren som vissa QGIS-distributioner använder genom standardbibliotek som GDAL och Arrow**, inte i någon här påvisad separat brist i QGIS egen applikationskod. Dessa bibliotek används även i många andra program. Det är den **faktiska paketeringen och avkodningen**, inte produktnamnet i sig, som behöver kontrolleras.
+Felet finns i Brotli-avkodaren som vissa QGIS-distributioner använder genom GDAL och Arrow. Någon separat brist i QGIS egen applikationskod har inte påvisats här. Kontrollera vilken Brotli-kopia installationen använder och var den kan nås av indata.
 
-**Vad vet vi?** I vissa QGIS-distributioner är en beroende- och avkodningsväg via GeoParquet, GDAL och Arrow till berörd Brotli-kod dokumenterad. HTTP via Qt/libcurl, JPEG XL och QGIS Server är **separata** vägar med annat bevisläge.
+**Känt:** En beroende- och avkodningsväg från GeoParquet genom GDAL och Arrow till berörd Brotli-kod är dokumenterad i vissa QGIS-distributioner. HTTP via Qt/libcurl, JPEG XL och QGIS Server är **separata** vägar med annat bevisläge.
 
-**Vad vet vi inte?** Det offentliga underlaget här visar ingen QGIS-specifik CVE-utlösning eller kodkörning. Det är varken bevis för att exploatering är omöjlig eller för att QGIS generellt kan exploateras. Exponeringen skiljer sig också mellan arbetssätt och distributioner.
+**Oklart:** Det offentliga underlaget här visar ingen QGIS-specifik CVE-utlösning eller kodkörning. Det visar varken att exploatering är omöjlig eller att QGIS generellt kan exploateras. Exponeringen skiljer sig också mellan arbetssätt och distributioner.
 
-**Vad bör göras ändå?** Använd QGIS normalt och installera relevanta uppdateringar genom den officiella distributionen. GIS/IT bör vid behov kontrollera vilken Brotli-kopia installationen faktiskt använder; ett tillgängligt OSGeo4W-paket betyder inte att varje QGIS-installation redan är rättad. [Rättningsstatus per 8 november](patchkedjan.md).
+**Åtgärd:** Fortsätt använda QGIS normalt och installera relevanta uppdateringar genom den officiella distributionen. GIS/IT bör vid behov kontrollera vilken Brotli-kopia installationen faktiskt använder; ett tillgängligt OSGeo4W-paket betyder inte att varje QGIS-installation redan är rättad. [Rättningsstatus per 8 november](patchkedjan.md).
 
-**Tekniska belägg och vidare läsning:** [README](../README.md) · [Filimport](fil-angreppsvagar.md) · [Beroenden](bibliotek.md) · [Patchkedja](patchkedjan.md)
+**Källor och fördjupning:** [README](../README.md) · [Filimport](fil-angreppsvagar.md) · [Beroenden](bibliotek.md) · [Patchkedja](patchkedjan.md)
+
+## Uppdatera QGIS på Windows och kontrollera GRASS samt andra bibliotek
+
+**För användare:** installera QGIS genom den officiella distributionsvägen eller via GIS/IT. **För förvaltare:** kontrollera vilken installation som faktiskt används, vilka paket som innehåller Brotli och om en rättad version har nått dem. En hittad fil bevisar inte att avkodaren används. En publicerad patch bevisar inte att installationen har uppdaterats.
+
+1. **Identifiera distributionen.** Skilj mellan [OSGeo4W v2 och fristående QGIS-installationer](https://www.qgis.org/resources/installation-guide/), parallella versioner och eventuellt separat [GRASS](https://grass.osgeo.org/download/). En fristående QGIS-katalog som innehåller OSGeo4W-paketmanifest ska inte därför uppdateras med OSGeo4W:s nätverksinstallerare.
+2. **Använd rätt installerare.** Uppdatera OSGeo4W v2 med dess officiella installerare i den avsedda installationsroten; uppdatera fristående QGIS via den officiella QGIS-distributionen. Kontrollera vid behov även `grass`, QGIS/GRASS-integrationen och Brotli-paketet. Det dokumenterade OSGeo4W-paketet `brotli 1.2.1-1` bevisar inte rättningsstatus för andra installationer eller för alla bibliotekskopior. [QGIS](https://qgis.org/download/) · [OSGeo4W](https://download.osgeo.org/osgeo4w/v2/x86_64/setup.ini.bz2).
+3. **Verifiera berörda kopior.** OSGeo4W:s `etc/setup/installed.db` kan visa paketversioner och `*.lst.gz` kan visa paketägarskap. GRASS kan leverera egna `libbrotlidec`-filer oberoende av huvudpaketet `brotli`. Fastställ vilka kopior som tillhör aktiva program och kontrollera leverantörens rättning för respektive bygge. Uppdatera eller avinstallera äldre oanvända installationer genom ordinarie hantering; ersätt inte DLL-filer manuellt.
+4. **Kontrollera drift och resultat.** En genväg, ett PyQGIS-skript eller ett schemalagt jobb kan starta en annan installation än den som nyss uppdaterades. Notera använd programväg och, där det är motiverat, vilka bibliotek processen faktiskt laddar. Ett normalt funktionstest visar att arbetsflödet fungerar, inte att CVE:n är rättad. [Inventering och bevisnivåer](ny-programvara.md).
+
+### Bekräfta paketägarskap utan CVE-test
+
+På en **egen, behörigt administrerad** Windows-installation kan ansvarig läsa `etc/setup/installed.db` och paketmanifesten `etc/setup/*.lst.gz` för att skilja ett `grass`-ägt bibliotek från en fil som levereras av `brotli`. Manifest och filnamn är **inventeringsbelägg**, inte bevis för versionen hos statiskt inbyggd kod eller en aktiv angreppsväg. Vid behov kan ett godkänt processverktyg, exempelvis [Microsoft Process Explorer](https://learn.microsoft.com/en-us/sysinternals/downloads/process-explorer), visa vilka DLL-sökvägar som faktiskt används. Kontrollera hela distributionskedjan före uppdatering och efter eventuell omstart.
+
+## DuckDB i QGIS Pythonmiljö: en separat bibliotekskopia
+
+Vissa QGIS-distributioner kan innehålla en **separat DuckDB-modul i Pythonmiljön** utöver GDAL/Arrow. DuckDB kan levereras med **inbyggd Brotli-kod**, som inte nödvändigtvis rättas när ett separat `brotlidec.dll`-paket uppdateras. [DuckDB:s ärende #27660](https://github.com/duckdb/duckdb/issues/27660) dokumenterade en tidigare vendorerad kopia utan upstreamrättning; ärendet stängdes efter [PR #27791](https://github.com/duckdb/duckdb/pull/27791). Det bekräftar inte vilken DuckDB-version som ingår i en given QGIS-distribution eller att en viss avkodare är nåbar via dess arbetsflöden.
+
+**Kontroll:** om DuckDB ingår i installationen, identifiera dess faktiska paket/version och följ distributionsleverantörens rättning separat från system-Brotli. Installerad modul eller inbyggda avkodarsignaturer visar **beroende**, inte CVE-utlösning eller säkerhetseffekt. Vilka kopior en enskild installation innehåller måste kontrolleras där; privata inventeringsloggar och produktspecifika tester redovisas inte här. [Inventeringsmetod](ny-programvara.md) · [Patchkedja](patchkedjan.md).
 
 ## Om du bara arbetar med lokala data
 
-Om du arbetar med egna, kontrollerade lokala data utan externa tjänster är du **inte automatiskt exponerad** via extern hämtning; det kan minska flera möjliga ingångar. Det betyder **inte** att hela QGIS-installationen är säker mot CVE:n: även en fil som öppnas lokalt kan ha laddats ned från ett forum, och projekt eller tillägg kan hämta nätverksdata. En GeoParquet-fil kan innehålla Brotli-komprimerade datasidor; detta visar en möjlig indataväg, **inte** att en sådan fil har visats utlösa CVE:n i QGIS. Fortsätt normal GIS-användning och uppdatera programmet även om du inte brukar hämta externa data. [Filer och social påverkan](fil-angreppsvagar.md) · [Supply chain](supply-chain.md#4-hur-ska-man-tänka-om-programmet-bara-används-lokalt).
+Om du arbetar med egna, kontrollerade lokala data utan externa tjänster är du **inte automatiskt exponerad** via extern hämtning; det kan minska flera möjliga ingångar. Det betyder **inte** att hela QGIS-installationen är säker mot CVE:n: även en fil som öppnas lokalt kan ha laddats ned från ett forum, och projekt eller tillägg kan hämta nätverksdata. En GeoParquet-fil kan innehålla Brotli-komprimerade datasidor; det ger en möjlig indataväg, men ingen CVE-utlösning via en sådan fil har visats i det publika underlaget för QGIS. Fortsätt normal GIS-användning och uppdatera programmet även om du inte brukar hämta externa data. [Filer och social påverkan](fil-angreppsvagar.md) · [Supply chain](supply-chain.md#4-hur-ska-man-tänka-om-programmet-bara-används-lokalt).
 
 ## 1. GeoParquet → GDAL → Arrow → Brotli
 
@@ -64,7 +83,7 @@ En teknisk rapport för **en särskild 3liz QGIS Server-avbild** visar att både
 
 **Öppna frågor:** Vilka QGIS-funktioner/insticksprogram öppnar JPEG XL, vilken libjxl- och Brotli-version laddas, och når utifrån påverkad metadata verkligen den aktuella avkodaren?
 
-## 4. QGIS Server i container – en egen distributionsfråga
+## 4. QGIS Server i container: kontrollera avbildens rättning
 
 [3liz/py-qgis-server #137](https://github.com/3liz/py-qgis-server/issues/137) dokumenterar att `3liz/qgis-map-server:4.2.2-1.9.7` hade ett Debian-Brotli-paket utan rättning. En projektföreträdare uppgav den **27 oktober 2026** att den ersattes av `4.2.3-1.9.7`, där `libbrotli1` korrigerats. Detta är en **bekräftad paketkorrigering i angiven avbild**, inte bekräftad RCE i QGIS Server eller garanti för andra 3liz-taggar. En ny image måste faktiskt hämtas och körande container återskapas.
 

@@ -1,8 +1,6 @@
-# Skydd – vad kan förhindra att angriparstyrda Brotli-data gör skada?
+# Skydd: vad kan förhindra att angriparstyrda Brotli-data gör skada?
 
 **Kontrollerat: 8 november 2026.** [Översikt](../README.md) · [Patchkedja](patchkedjan.md)
-
-**För helhetsbilden:** [README](../README.md). Behöver du lämna en avgränsad fråga till IT: [ansvar och överlämning](borja-har.md).
 
 **Huvudåtgärd: installera en version som innehåller den korrigerade avkodaren och säkerställ att processen använder den.** Alla övriga kontroller är villkorade riskbegränsningar eller skademinimering. Använd [riskkedjan](riskkedja.md) för att bedöma både **vad som stoppar den angriparpåverkade indatan** och **vad som begränsar skadan om en process trots detta påverkas**.
 
@@ -17,7 +15,7 @@
 | **Rate limiting, observation av krascher och larm** | Underlättar upptäckt och dämpar vissa avbrott | Att en enstaka felaktig avkodning stoppas; fullständigt RCE-skydd |
 | **Verifierad återläsning och återställningsbara offlinebackuper** | Reducerar påverkan av senare dataskada/ransomware | Att intrånget eller CVE-utlösningen förhindras |
 
-Källor: [Express – tillfällig spärr före body-parser](https://expressjs.com/en/blog/2026-10-31-security-releases/), [OWASP TLS](https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Security_Cheat_Sheet.html), [OWASP File Upload](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html), [OWASP SSRF](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html).
+Källor: [Express, tillfällig spärr före body-parser](https://expressjs.com/en/blog/2026-10-31-security-releases/), [OWASP TLS](https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Security_Cheat_Sheet.html), [OWASP File Upload](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html), [OWASP SSRF](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html).
 
 ## Prioritera aktiva riskkedjor
 
@@ -32,13 +30,9 @@ Källor: [Express – tillfällig spärr före body-parser](https://expressjs.co
 
 **Praktisk prioriteringsordning:** rätta först aktiva och nåbara avkodningsvägar med stora möjliga konsekvenser. En **publik opatchad Node.js/Express-server** som avkodar angriparstyrda komprimerade begärandekroppar före autentisering är normalt akut. En **intern FME-/Python-/Node-automatisering** som avkodar data från externa källor kan vara minst lika viktig när den kan nå känsliga system. En **gammal lokal Node-/npm-installation som bara användes för felsökning och inte körs** är normalt lägre akut prioriterad för *den här* CVE:n; uppdatera eller avinstallera den enligt ordinarie hantering. Men kontrollera först att inga tjänster, Aktivitetsschemaläggaren-jobb, CI-flöden eller andra program använder den.
 
-**Viktigt för patchbeslut:** Om leverantören rekommenderar en rättning för den berörda produktversionen ska den genomföras enligt er ordinarie säkerhetsprocess även utan eget exploitbevis. Prioriteringen gäller **ordningen och behovet av extra skydd**, inte om en rekommenderad rättning ska hoppas över. Begränsat användningssätt sänker ibland exponeringen men ger inget generellt säkerhetsintyg.
-
 **npm är inte en server:** `npm` hanterar paket, medan Node.js är en runtime som kan starta kod. En gammal npm-version visar varken att en offentlig tjänst körs eller vilken Brotli-kopia en annan applikation använder. Kontrollera också om ett program levererar **en separat inbäddad Node-runtime**, som kräver egen uppdatering. Ett stoppat program är inte en pågående attackyta för den vägen, men kan bli exponerat när det startas igen.
 
-**Om information saknas: skriv "okänd – undersök"**, inte "säker", "sårbar" eller "låg risk". En publik port eller gammal Node-version räcker inte ensam för att visa Brotli-exploaterbarhet; ett icke-publikt system blir inte riskfritt om det läser angriparpåverkad data. Att CVE:n har demonstrerad RCE i särskilda Node-testmiljöer belägger inte RCE i just den installerade produkten. [Express om Brotli och rättning i Node](https://expressjs.com/en/blog/2026-10-31-security-releases/) · [Node.js säkerhetsreleaser](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases) · [riskkedjan](riskkedja.md).
-
-**Slutsatsen ska innehålla ett beslut även när påverkan är okänd.** Avsluta varje identifierad väg med [sex fält: påverkan, exponering, konsekvens, prioritet, rättning och kvarvarande osäkerhet](riskkedja.md#slutbedömning--från-inventering-till-åtgärdsbeslut). Vid okänd implementation är första beslutet **inventera**, inte ”avvakta tills någon visar RCE”. Dokumenterad frånvaro av en nåbar kodväg kan motivera lägre akut prioritet för *den vägen*; det betyder inte att framtida användning eller andra avkodare är säkra.
+**Om information saknas: skriv "okänd, undersök"**, inte "säker", "sårbar" eller "låg risk". En publik port eller gammal Node-version räcker inte ensam för att visa Brotli-exploaterbarhet; ett icke-publikt system blir inte riskfritt om det läser angriparpåverkad data. Att CVE:n har demonstrerad RCE i särskilda Node-testmiljöer belägger inte RCE i just den installerade produkten. [Express om Brotli och rättning i Node](https://expressjs.com/en/blog/2026-10-31-security-releases/) · [Node.js säkerhetsreleaser](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases) · [riskkedjan](riskkedja.md).
 
 ## Prioritering per ingång
 

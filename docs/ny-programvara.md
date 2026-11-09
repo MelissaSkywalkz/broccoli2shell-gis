@@ -1,14 +1,12 @@
-# Bedöm ett annat program – CVE-först utan att gissa produktsårbarheter
+# Bedöm Brotli i andra GIS-miljöer och beroenden
 
-**För en samlad översikt:** [README](../README.md). Om du saknar driftansvar: [avgränsa och lämna vidare](borja-har.md).
+Se [README](../README.md) för produktstatus och [dataflöde till patch](dataflode-till-patch.md) för en viss hämtning eller filimport. Om du saknar driftansvar kan du [lämna frågan vidare](borja-har.md).
 
-**Praktisk ingång för ett bestämt API, ett jobb eller en nedladdning:** [Vi hämtar X via Y – vad behöver vi kontrollera?](dataflode-till-patch.md).
+För GIS-program som saknas i produktöversikten behöver du först identifiera eventuella Brotli-beroenden. Förekomst av biblioteket innebär inte att det finns en separat brist i programkoden. Fastställ beroende och möjlig påverkan, och följ relevanta rättningar utan att först försöka exploatera produkten. [Översikt](../README.md) · [Supply chain](supply-chain.md) · **[Riskkedja](riskkedja.md)** · [Bevisnivåer](metod.md)
 
-**Metod för program som inte nämns i produktkartan.** CVE-felet finns i Brotli; ett okänt program kan använda samma vanliga bibliotek utan att det har en egen rapporterad kodbrist. Fastställ beroende och möjlig påverkan, och följ relevanta rättningar utan att först försöka exploatera produkten. [Översikt](../README.md) · [Supply chain](supply-chain.md) · **[Riskkedja](riskkedja.md)** · [Bevisnivåer](metod.md)
+## Kan angriparpåverkad data nå den berörda avkodaren?
 
-## Frågan är inte "har programmet Brotli?" utan "kan angriparpåverkad komprimerad data nå just den berörda avkodaren?"
-
-Följ **samma ordning** oavsett om det gäller en intern GIS-tjänst, en webbkarta, en ETL-motor, ett Python-skript, en container, en HTTP-proxy eller ett annat program:
+Använd ordningen nedan för GIS-tjänster, webbkartor, ETL, Python, containrar och HTTP-proxyer:
 
 1. **Vilken CVE?** Identifiera CVE-2026-111497, relevant felaktig *avkodning* och upstream-rättad kod. [Felmekanism](cve-mekanism.md).
 2. **Var kan angriparen påverka byte?** Finns inkommande komprimerade begäranden, hämtade svar, filer, uppladdningar, importer eller automatiska jobb? Vem får styra URL/källa eller filinnehåll?
@@ -29,7 +27,7 @@ För ett system såsom **myCarta** är status här **okänd**: vi har inte verif
 
 En användare som endast hanterar självproducerade lokala filer i QGIS kan sakna angriparpåverkad indata på en viss avkodningsväg, men det säger inte att installationens samtliga tillägg, importer och nätverksfunktioner saknar andra vägar. **Begränsad praktisk exponering och uppdateringsbehov är olika bedömningar.** [Supply chain och lokala arbetsflöden](supply-chain.md#4-hur-ska-man-tänka-om-programmet-bara-används-lokalt).
 
-**Schemalagd Python, Kettle/Pentaho, FME, Frends och ArcGIS:** se [verktygsoberoende hämtning → process → avkodare → patch](dataflode-till-patch.md#2-samma-data--olika-program-kontrollera-här). Windows Aktivitetsschemaläggaren är inte en Brotli-decoder; dess **Åtgärder** identifierar vilket program, skript och körkonto som faktiskt kör. Kettle är normalt en Java-miljö: anta inte att Microsofts .NET-patch rättar dess Java-/native-bibliotek.
+För schemalagd Python, Kettle/Pentaho, FME, Frends och ArcGIS finns en [genomgång från hämtning till rättning](dataflode-till-patch.md#2-kontrollera-varje-program-som-hanterar-samma-data). Windows Aktivitetsschemaläggaren är inte en Brotli-decoder; dess **Åtgärder** identifierar vilket program, skript och körkonto som faktiskt kör. Kettle är normalt en Java-miljö: anta inte att Microsofts .NET-patch rättar dess Java-/native-bibliotek.
 
 ## Användbart dokumentationskort
 
@@ -46,7 +44,7 @@ En användare som endast hanterar självproducerade lokala filer i QGIS kan sakn
 > **Rättning: upstream / i produkten / verifierad i drift:** …
 > **Tillfälligt skydd och kvarvarande frågor:** …
 
-**Avsluta även en utredning av okänd programvara med sex fält**, inte bara en lista med installerade bibliotek: **Påverkan** (bekräftad/möjlig/okänd), **Exponering** (aktiv, nåbar, ej visad), **Konsekvens** (processens faktiska skyddsvärden), **Prioritet** (nästa kontroll eller rättning), **Rättning** (vilken distributionskopia och driftstatus) och **Kvarvarande osäkerhet** (vad som återstår att visa). Använd [det gemensamma avslutskortet](riskkedja.md#slutbedömning--från-inventering-till-åtgärdsbeslut). **Okänt är inte lika med säkert.**
+**Dokumentera slutsatsen med sex fält:** **Påverkan** (bekräftad/möjlig/okänd), **Exponering** (aktiv, nåbar, ej visad), **Konsekvens** (processens faktiska skyddsvärden), **Prioritet** (nästa kontroll eller rättning), **Rättning** (vilken distributionskopia och driftstatus) och **Kvarvarande osäkerhet** (vad som återstår att visa). Använd [det gemensamma avslutskortet](riskkedja.md#slutbedömning-efter-inventering). **Okänt är inte lika med säkert.**
 
 ## Exempel på härledning av uppgradering utan produktspecifikt CVE-besked
 
@@ -58,7 +56,15 @@ En användare som endast hanterar självproducerade lokala filer i QGIS kan sakn
 
 **Java-baserad webbtjänst:** Titta efter installerade native-komponenter och aktiv Brotli-avkodning (exempelvis Brotli4j, inte bara Jetty som namn). En `brotli4j`-version ≤1.23.0 kan ha sårbar native-kod; det säger ännu inget om applikationens tillgängliga dataflöden. [Brotli4j](https://github.com/hyperxpro/Brotli4j/security/advisories/GHSA-x524-jrqf-vwq6).
 
-**Containeriserat program:** En paketfynd i Dockerfile eller på registry-taggen är inte samma sak som bilden som körs. Granska digest, paket i den körande bilden, inbyggda beroenden och om en ombyggnad/start har gjorts.
+**Containeriserat program:** Ett paketfynd i en Dockerfile eller på en registry-tagg visar inte vilken containeravbild som faktiskt körs. Granska avbildens digest, installerade paket, inbyggda beroenden och om den har byggts om och driftsatts på nytt.
+
+## Inventering: identifiera rätt bibliotekskopia
+
+- **Flera kopior kan förekomma i samma GIS-installation.** Exempelvis kan QGIS/OSGeo4W, GRASS, en separat Pythonmiljö och en integrerad DuckDB-modul leverera olika Brotli-kopior. En uppdaterad system-DLL säger inget säkert om en inbyggd kopia. OSGeo4W:s `installed.db` och paketmanifest kan ge belägg för **paket och filägare**, inte för aktiv avkodning. [QGIS-exempel](qgis.md#duckdb-i-qgis-pythonmiljö-en-separat-bibliotekskopia).
+- **Skannerfynd kräver tolkning.** Brotli-signaturer och beroendereferenser visar inte att en avkodare används, är nåbar eller går att exploatera. Uteblivna träffar, överhoppade arkivposter och otillgängliga filer innebär att inventeringen kan vara ofullständig.
+- **Version och drift måste beläggas separat.** Filnamn, byggdatum och en körd `curl -V` ger inte automatiskt versionen i andra bibliotekskopior. Kontrollera produktspecifika säkerhetsbesked, installerat paket och vid behov vilken kod den faktiska processen använder. En patch kan vara bakåtporterad trots äldre versionssträng. [Patchkedjan](patchkedjan.md).
+
+**För den som har driftansvar:** avsluta med produkt/version, distributionsform, observerad kopia, hur den används, kontrollens begränsningar samt rättningens status. Vanliga GIS-användare behöver normalt bara använda godkända uppdaterade program och lämna tekniska frågor till GIS/IT.
 
 ## Vad betyder "inte påverkad"?
 
