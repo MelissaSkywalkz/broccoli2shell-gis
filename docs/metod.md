@@ -88,6 +88,8 @@ Ange testad produkt/version, relevant dataväg, källa, positiva och negativa ko
 
 ## Publiceringsgräns
 
+Nya produktspecifika säkerhetsfynd samordnas med ansvarigt projekt eller leverantör innan felutlösande reproduktionsdetaljer publiceras. Den publika vägledningen kan redovisa daterad distributions- och rättningsstatus utan att publicera privata testfiler, råloggar eller instruktioner för att framkalla sårbarheten. [OWASP Vulnerability Disclosure](https://cheatsheetseries.owasp.org/cheatsheets/Vulnerability_Disclosure_Cheat_Sheet.html).
+
 Broccoli2Shell-GIS ska hjälpa **GIS-användare och systemansvariga att förstå, kontrollera och åtgärda CVE-2026-111497**. Innehållet avgränsas till GIS-produkter, relevanta beroenden och hur rättningen når den använda installationen.
 
 Ta med tekniska uppgifter som hjälper någon att kontrollera, prioritera eller uppdatera en GIS-miljö. Beskriv relevanta men outredda angreppsvägar som möjliga. Publicera inte detaljer som främst förenklar reproduktion eller exploatering; nya produktspecifika fynd kan behöva rapporteras konfidentiellt. Exempel utanför GIS ska förklara beroenden eller uppdateringsansvar, inte bilda en produktkatalog.

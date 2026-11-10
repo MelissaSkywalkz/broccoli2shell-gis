@@ -4,7 +4,7 @@
 [![CVSS](https://img.shields.io/badge/CVSS%204.0-9.2%20Critical-f12c35)](https://www.cve.org/CVERecord?id=CVE-2026-111497)
 [![CISA KEV](https://img.shields.io/badge/CISA%20KEV-Listed-d97706)](https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2026-111497)
 
-**Uppdaterad: 9 november 2026**
+**Uppdaterad: 10 november 2026**
 
 **CVE-2026-111497** är ett minnesfel i Googles Brotli-avkodare. Felet är inte GIS-specifikt. Brotli används även i filformat, bibliotek och körmiljöer som förekommer i GIS-program.
 
@@ -64,7 +64,7 @@ Swagger/OpenAPI är ett **gränssnitt eller en API-beskrivning**, inte en egen B
 
 | Produkt eller driftmiljö | Belägg och osäkerheter | Rekommenderad kontroll eller åtgärd |
 | --- | --- | --- |
-| **[QGIS](docs/qgis.md)** | **Berörd Brotli-kod via vanliga GIS-bibliotek**, med en dokumenterad GeoParquet → GDAL → Arrow-väg i specificerade byggen. Ingen QGIS-specifik CVE-utlösning eller RCE visad i det offentliga underlaget; andra vägar är mer osäkra. | Uppdatera via officiell QGIS-/OSGeo4W-distribution. Kontrollera faktiskt laddad Brotli-kopia vid behov. |
+| **[QGIS](docs/qgis.md)** | **Dokumenterad Brotli-avkodning via GDAL/Arrow i specificerade QGIS-byggen.** De fristående Windows-MSI-paketen 3.44.15-2 och 4.2.3-2 innehåller enligt installationskontroller Brotli 1.2.0. Ingen produktspecifik RCE påstås här; andra indatavägar utreds separat. | Följ QGIS säkerhetsbesked. Befintliga MSI-installationer kan ha egen OSGeo4W Setup för paketuppdateringar; prova kontrollerat och verifiera laddad DLL. `brotli 1.2.1-1` rättar inte automatiskt separata GRASS-kopior. [QGIS](docs/qgis.md) |
 | **[FME Form/Flow](docs/fme.md)** | Safe bekräftar påverkan i FME genom HTTP-klient, Parquet och DuckDB. Enligt artikel kontrollerad 9 november förbereds rättade byggen för 2026.1 till 2026.3. DuckDB kräver separat rättning. Ingen färdig CVE-rättad FME-utgåva har bekräftats här. | Följ Safes råd för er version. Linux använder system-Brotli för HTTP/Parquet, men DuckDB har en egen kopia. Kontrollera även externa anrop från Workbench och schemalagda Engine-jobb. |
 | **[ArcGIS](docs/arcgis.md)** | **Esri bekräftar påverkan via underliggande komponenter** för Server 11.5/12.0/12.1 och Pro 3.5+, med Node.js- och .NET-relaterade rättningskedjor. Server 11.1/11.3 berörs enligt Esri inte av *just Node.js/Brotli-felet*. Ingen specifik extern CVE-endpoint eller generell ArcGIS-RCE redovisas här. | Installera Esris Server-patch där den gäller; följ Esris aktuella besked om Pro och uppdatera relevant .NET separat. |
 | **[Origo Server, Node.js i backend](docs/origo-server.md)** | En möjlig väg till **Brotli-avkodaren som följer med Node.js** stöds av Express och granskad källkod. Inget eget CVE-fel i Origos applikationskod eller någon Origo-specifik exploatering har påvisats här. Webbklienten är separat. | Kontrollera om Node-backend körs; uppdatera och verifiera berörd Node.js-runtime enligt driftmiljöns och Node-projektets råd. |
@@ -76,7 +76,7 @@ Swagger/OpenAPI är ett **gränssnitt eller en API-beskrivning**, inte en egen B
 
 QGIS, FME och ArcGIS har olika bevisläge. Det finns därför inget stöd för att bedöma dem som lika exploaterbara eller kalla någon av dem säker bara för att en CVE-utlösning inte har demonstrerats offentligt. **En produkt kan påverkas av CVE:n utan att dess utvecklare har orsakat grundfelet.** Ett sakligt besked anger **vilken version, vilket beroende och vilken typ av belägg** det avser, och rekommenderar relevant uppdatering. [Detaljerad produktöversikt med separata möjliga vägar](docs/produktoversikt.md).
 
-## 4. Vilka rättningar och besked fanns den 9 november 2026?
+## 4. Vilka rättningar och besked fanns den 10 november 2026?
 
 Detta är **tillgängliga versioner eller daterad leverantörsstatus**, inte ett intyg om att en viss installation är uppdaterad. En distribution kan ha bakåtporterade säkerhetsrättningar och flera Brotli-kopior. Följ leverantörens rekommenderade paket för just er version och plattform.
 
@@ -87,12 +87,13 @@ Detta är **tillgängliga versioner eller daterad leverantörsstatus**, inte ett
 | **.NET** | `8.0.33`, `9.0.22`, `10.0.14`, `.NET 11 RC3` | Gäller Microsofts angivna Brotli-vägar, inte automatiskt varje HTTP-klient. Berörd HTTP-avkodning är inte alltid påslagen som standard. Self-contained/NativeAOT måste byggas/distribueras om; .NET Framework omfattas inte av just denna advisory. [Microsoft](https://github.com/dotnet/runtime/security/advisories/GHSA-p3jp-9v83-76w9) |
 | **PowerShell 7** | `7.4.22`, `7.5.13`, `7.6.9` | Rätta den version schemalagda jobb faktiskt använder. [MSRC](https://www.microsoft.com/en-us/msrc/blog/2026/10/patch-now-php2shell-brotli-emudhra-guidance-for-customers) |
 | **Arrow/PyArrow** | `26.0.1` för angivna distribuerade binärer | Systemlänkad Arrow kan använda annan Brotli-kopia. [Arrow](https://arrow.apache.org/blog/2026/11/03/26.0.1-release/) |
-| **QGIS/OSGeo4W** | Brotli-paket `1.2.1-1` tillgängligt | Kontrollera distribuerad/installerad DLL. [OSGeo4W](https://download.osgeo.org/osgeo4w/v2/x86_64/setup.ini.bz2) |
+| **QGIS/OSGeo4W och GRASS** | `brotli 1.2.1-1` tillgängligt i OSGeo4W; fristående MSI 3.44.15-2 och 4.2.3-2 innehåller enligt separata kontroller Brotli 1.2.0. Senaste kontrollerade stabila GRASS 8.5.0-1 föregår rättningen. | MSI-installationens egen OSGeo4W Setup kan uppdatera paket i dess installationsrot. Verifiera resultatet; ingen rättad komplett MSI eller GRASS-kopia verifierad här per 10 nov. [QGIS](docs/qgis.md) · [OSGeo4W](https://www.norbit.de/osgeo4w/v2/x86_64/release/brotli/) |
 | **Debian/Ubuntu** | Säkerhetsbackportar i distributionspaket | En äldre grundversion kan vara rättad. [Debian](https://security-tracker.debian.org/tracker/CVE-2026-111497) · [Ubuntu](https://ubuntu.com/security/CVE-2026-111497) |
 | **Brotli4j** | `1.24.0` samt matchande `native-*`-paket | En system-Brotli-fix rättar inte en gammal inbyggd native-kopia. [Advisory](https://github.com/hyperxpro/Brotli4j/security/advisories/GHSA-x524-jrqf-vwq6) |
 | **Python Brotli/brotlicffi** | `Brotli 1.2.1` / `brotlicffi 1.2.1.0` | Kontrollera den Pythonmiljö som används. [Advisory](https://github.com/advisories/GHSA-9v8h-qqgm-4m35) |
 | **3liz QGIS Server** | Avbild `4.2.3-1.9.7` angavs innehålla rättat paket | Gäller den särskilda avbilden, inte alla QGIS Server-installationer. [Underhållarärende](https://github.com/3liz/py-qgis-server/issues/137) |
 | **ArcGIS Server** | Security 2026 Update 4 för `11.5`, `12.0`, `12.1` | Esris produktpatch, inte bevis om lokal installation. [Esri](https://support.esri.com/en-us/patches-updates/2026/arcgis-server-security-2026-update-4-patch) |
+| **ArcGIS Mission Server** | Security 2026 Update 1 för `11.5`, `12.0`, `12.1` (9 nov) | Separat från ArcGIS Server-patchen. [Esri](https://support.esri.com/en-us/patches-updates/2026/arcgis-mission-server-security-2026-update-1-patch) |
 | **ArcGIS Pro 3.5+** | Produktpatch **väntades** enligt Esris besked uppdaterat **7 november** | Daterat besked, inte ett påstående om aktuell status. Kontrollera även separat .NET. [Esri](https://www.esri.com/arcgis-blog/products/trust-arcgis/administration/brotli-vulnerabilities-broccoli2shell) |
 | **FME** | Safe anger påverkan och att rättade 2026.1 till 2026.3-byggen förbereds. DuckDB separat. | Kontrollera Safes [CVE-specifika besked](https://support.safe.com/hc/en-us/articles/50040725669517-Brotli-Decoder-CVE-2026-111497-Is-FME-Impacted) för er version. Novemberartikeln om andra sårbarheter bekräftar inte en Brotli-rättning. |
 

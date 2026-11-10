@@ -1,6 +1,6 @@
 # ArcGIS: berörda versioner och separata rättningar
 
-**Källkontroll: 9 november 2026.** Esris produktbesked uppdaterades 7 november. Server-patchen publicerades 5 november. Microsofts .NET-besked publicerades 25 oktober.
+**Källkontroll: 10 november 2026.** Esris produktbesked uppdaterades 7 november. Server-patchen publicerades 5 november. Microsofts .NET-besked publicerades 25 oktober.
 
 Felet finns i Brotli-avkodning som följer med underliggande komponenter, bland annat Node.js i ArcGIS Server och .NET i vissa andra ArcGIS-komponenter. Esri bekräftar produktpåverkan, men grundfelet ligger i Brotli.
 
@@ -28,6 +28,10 @@ ArcGIS Server-funktion som använder berörd Node.js/Brotli
 
 **Tidigare begränsningsåtgärd:** Esri anger att den som tillfälligt stängt av *ArcGIS Enterprise SDK custom data feeds* kan aktivera funktionen igen **när Security 2026 Update 4 har installerats** på berörd ArcGIS Server. Kontrollera att patchen är installerad innan funktionen återaktiveras.
 
+## ArcGIS Mission Server: separat säkerhetspatch
+
+Esri publicerade **ArcGIS Mission Server Security 2026 Update 1** den **9 november 2026** för Mission Server **11.5, 12.0 och 12.1** på Windows och Linux. Patchen åtgärdar `BUG-000188431`, som Esri kopplar till CVE-2026-111497. Det är en **egen produktpatch**, inte samma patch som ArcGIS Server Security 2026 Update 4 (`BUG-000188308`). Installera endast den Mission Server-patch som motsvarar produktversion och plattform; följ Esris anvisningar för kontroll efter installation. Detta leverantörsbesked verifierar inte en specifik extern angreppsväg eller RCE i Mission Server. [Esris Mission Server-patch](https://support.esri.com/en-us/patches-updates/2026/arcgis-mission-server-security-2026-update-1-patch).
+
 ## ArcGIS Pro och .NET
 
 ```text
@@ -51,6 +55,7 @@ Funktion i ArcGIS Pro / Web Adaptor / SDK-baserad tjänst
 | Del | Påverkansbesked | CVE-ingång till avkodare | Patch |
 | --- | --- | --- | --- |
 | ArcGIS Server 11.5/12.0/12.1 | **Bekräftad** | Node.js-komponent; exakt extern ingång inte beskriven | **Ja**, Security 2026 Update 4 |
+| ArcGIS Mission Server 11.5/12.0/12.1 | **Bekräftad enligt separat Esri-patch** | Produktspecifik extern ingång inte visad här | **Ja**, Security 2026 Update 1 |
 | ArcGIS Server 11.1/11.3 | Esri anger **inte** berörda av just denna Node.js-fråga | Ingen generell slutsats om andra delar eller framtida byggen | Följ produktens övriga support-/patchstatus |
 | ArcGIS Pro 3.5+ | **Bekräftad** | Produktspecifika dataflöden inte fullt kartlagda | Produktpatch **väntades 7 nov**; .NET separat rättad |
 | .NET i Web Adaptor, SOE/SOI m.fl. | Esri anger kundhanterad runtime | Bara konfigurationer som avkodar angriparpåverkad Brotli | **Ja**, .NET 8.0.33 / 9.0.22 / 10.0.14 |
