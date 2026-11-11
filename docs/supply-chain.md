@@ -68,8 +68,8 @@ Det är tre skilda statusar. En uppströmsfix rättar inte automatiskt en redan 
 
 ## 6. När produkten saknar säkerhetsbesked
 
-Börja med vad programmet faktiskt gör och vilken del som utför eventuell avkodning. Be leverantören om versionsbundet besked, beroendeinformation eller en relevant VEX-bedömning. Vid egen behörig inventering kan paketlista, SBOM, byggrecept och uppgifter om körande bibliotek ge stöd. Okänd status ska redovisas som **okänd, undersök**, inte som ”säker” eller ”sårbar”. [Praktisk inventering av okända program](ny-programvara.md) · [Från dataflöde till patch](dataflode-till-patch.md).
+Börja med vad programmet faktiskt gör och vilken del som utför eventuell avkodning. Be leverantören om versionsbundet besked, beroendeinformation eller en relevant VEX-bedömning. Vid egen behörig inventering kan paketlista, SBOM, byggrecept och uppgifter om körande bibliotek ge stöd. Om statusen inte kan fastställas ska den anges som **okänd**, inte som ”säker” eller ”sårbar”. [Praktisk inventering av okända program](ny-programvara.md) · [Från dataflöde till patch](dataflode-till-patch.md).
 
-Exempelvis är **myCarta** här endast ett program att *inventera*: ingen myCarta-specifik Brotli-påverkan fastställs. [7-Zip och 7-Zip ZS](arkivverktyg.md) visar tvärtom varför en fork eller ett tillägg kan innehålla en annan avkodare än huvudprogrammet. Produktnamnet ensamt räcker inte som underlag för en CVE-slutsats.
+Exempelvis är **myCarta** här endast ett program att *inventera*: ingen myCarta-specifik Brotli-påverkan fastställs. Olika versioner och tillägg kan använda olika avkodare. Produktnamnet ensamt räcker därför inte för att avgöra om CVE:n berör en viss installation.
 
 **Gräns för egna kontroller:** börja med dokumentation, paket- och versionsuppgifter. Skicka inte CVE-utlösande indata till externa eller produktionssatta system. Nya produktspecifika fynd rapporteras konfidentiellt enligt leverantörens säkerhetspolicy. [Metod och publiceringsgräns](metod.md).
