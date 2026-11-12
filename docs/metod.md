@@ -41,13 +41,16 @@ En produkt kan ha **leverantörsbekräftad påverkan och samtidigt okänd ingån
 
 ## Välj nästa kontroll
 
+> [!CAUTION]
+> Skicka inte indata som avsiktligt försöker utlösa CVE-2026-111497 till publika eller produktionssatta tjänster. Börja med källor, kodgranskning och inventering. Felutlösande tester hör hemma i en avgränsad, uttryckligen godkänd testmiljö.
+
 **Skyddsprioritet** handlar om vilken aktiv riskkedja som bör begränsas eller rättas först. **Undersökningsprioritet** handlar om vilken *obesvarad fråga* som är mest värdefull att kontrollera härnäst. De kan peka mot olika system. En redan rättad server kan vara relevant för forskning i ett separat labb utan att kräva en akut driftåtgärd; en känslig integration kan behöva inventeras och uppdateras även när CVE-utlösning inte har demonstrerats i produkten.
 
 Utgå från tre frågor för varje tänkbar undersökning:
 
 1. **Vad vet vi redan?** Ange högsta belagda nivå ovan och om påverkan, exponering och rättningsstatus är kända eller okända.
 2. **Vilken avgörande fråga återstår?** Välj den *första saknade länken* som kan ändra bedömningen, exempelvis om indata når en sårbar avkodare, om rättad kod faktiskt körs eller vad processen kan komma åt.
-3. **Vilken säker kontroll kan besvara den?** Välj först dokumentation, SBOM, paket-/runtimeinventering, konfiguration eller legitim testindata i ett isolerat, behörigt labb. Ett test som visar avkodning bevisar inte CVE-utlösning. Testa inte felutlösande indata mot publika eller produktionssatta system.
+3. **Vilken säker kontroll kan besvara den?** Välj först dokumentation, SBOM, paket-/runtimeinventering, konfiguration eller legitim testindata i ett isolerat, behörigt labb. Ett test som visar avkodning bevisar inte CVE-utlösning.
 
 | Exempel | Vad är nästa meningsfulla kontroll? | Vad ska **inte** antas? |
 | --- | --- | --- |

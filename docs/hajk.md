@@ -1,6 +1,6 @@
 # Hajk: Express-backend, Node.js och olika distributioner
 
-**Källkontroll: 8 november 2026**  
+**Källkontroll: beroendeanalys 8 november; Hajks aktuella Docker- och releaseanvisningar kontrollerade 12 november 2026.**  
 
 **Den generella modellen:** [CVE-felet](cve-mekanism.md) · [HTTP-ingångar](http-angreppsvagar.md) · [filingångar](fil-angreppsvagar.md) · [konsekvenser](konsekvenser.md) · [skydd](skydd.md) · [patchkedja](patchkedjan.md). Varje produktväg är en tillämpning av dessa villkor, inte ett oberoende säkerhetsbesked.
 
@@ -34,7 +34,7 @@ Det här bevisar **inte** CVE-utlösning i ett visst Hajk-bygge, en internetåtk
 
 [Hajk releaseguide](https://github.com/hajkmap/Hajk/blob/master/docs/releases.md) · [Hajks säkerhetspolicy](https://github.com/hajkmap/Hajk/blob/master/SECURITY.md).
 
-**Officiell Docker:** En vanlig release-image byggs **en gång** och blir inte automatiskt säker när grundimagen uppdateras. `nightly-master` byggs om regelbundet från aktuell release och nyare grundimage; det innebär inte automatiskt att alla npm-beroenden uppdateras, eftersom låsfilerna styr dem. Hajk beskriver även hur en release-image byggs om från rätt tagg. Kontrollera **image-digest och versioner i körande container**, inte bara taggnamnet i en `docker pull`-logg.
+**Officiell Docker:** En vanlig releaseavbild byggs en gång. Hajk bygger i stället varje natt om releaseavbilder för de två senaste minorversionerna med en uppdaterad grundavbild, till exempel `nightly-4.3`. Den äldre minorversionen får grundavbildens uppdateringar, men inte nya säkerhetsfixar i Hajk-koden. Ett separat `nightly-develop` innehåller ändringar som ännu inte släppts som release och bör inte användas som en generell säkerhetsuppdatering i drift. Låsfilerna styr npm-beroendena även vid ombyggnad. Hämta och återskapa containern och kontrollera faktisk Node.js-version och avbildens digest. [Nattliga byggen](https://github.com/hajkmap/Hajk/blob/master/docs/releases.md#nightly-builds) · [Byggflöde för releaser](https://github.com/hajkmap/Hajk/blob/master/.github/workflows/nightly-releases.yml).
 
 **Node.js:** För de uppströms Node-grenar som berörs finns första rättade versionerna 22.23.4, 24.22.1 och 26.12.1 (24.22.2 eller senare rekommenderas framför regressionspåverkade 24.22.1). Äldre osupporterade Node-grenar får inte dessa rättningar från Node-projektet. [Node.js säkerhetsrelease](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases).
 

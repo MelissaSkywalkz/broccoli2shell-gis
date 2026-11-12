@@ -1,6 +1,6 @@
 # Patchkedjan: från rättat bibliotek till uppdaterad installation
 
-**Källkontroll: 8 till 10 november 2026.** [Översikt](../README.md) · [Skydd](skydd.md)
+**Källkontroll: öppna huvudkällor återkontrollerade 12 november 2026. Tidigare lokala kontroller behåller sina ursprungliga datum.** [Översikt](../README.md) · [Skydd](skydd.md)
 
 ```mermaid
 flowchart LR
@@ -12,7 +12,10 @@ flowchart LR
   E --> F[Verifierad faktisk avkodare]
 ```
 
-Brotli behöver rättas där den använda kopian levereras: i operativsystemets paket, i en runtime, i en produktrelease eller i en container. Att en produkt behöver uppdateras betyder inte att dess utvecklare orsakat upstreamfelet. Samtidigt kan ingen lokal installation betraktas som rättad enbart för att grundbiblioteket har en publicerad fix.
+Brotli behöver rättas där den använda kopian levereras: i operativsystemets paket, i en runtime, i en produktrelease eller i en container. Att en produkt behöver uppdateras betyder inte att dess utvecklare orsakat upstreamfelet.
+
+> [!WARNING]
+> **En publicerad rättning är inte samma sak som en rättad installation.** Kontrollera vilken Brotli-kopia som används. Installera rätt produkt- eller paketrättning och verifiera den körande processen efter uppdateringen.
 
 ## Distributionsskillnader: Red Hat som exempel
 
@@ -20,12 +23,12 @@ I [Red Hats CVE-besked](https://access.redhat.com/security/cve/cve-2026-111497) 
 
 ## Daterad rättningsstatus och produktbesked
 
-Tabellen sammanfattar rättningar och leverantörsbesked som kontrollerats senast **9 november 2026**, med särskilda datum där uppgifterna är äldre. Den visar inte vilken rättning som körs lokalt. Om ett CVE-specifikt rättat produktbygge inte kunnat verifieras i öppna källor kan det ändå finnas. Följ leverantörens råd och kontrollera den använda komponenten efter uppdatering.
+Tabellen sammanfattar daterade rättningar och leverantörsbesked. De flesta produktuppgifter kontrollerades 8 till 10 november 2026. Node.js säkerhetsversioner från 11 november redovisas separat i samma tabell. Den visar inte vilken rättning som körs lokalt. Om ett CVE-specifikt rättat produktbygge inte kunnat verifieras i öppna källor kan det ändå finnas. Följ leverantörens råd och kontrollera den använda komponenten efter uppdatering.
 
-| Komponent | Dokumenterad rättning eller leverantörsstatus (kontrollerad senast 9 nov) | Villkor, nästa kontroll och källa |
+| Komponent | Dokumenterad rättning eller leverantörsstatus | Villkor, nästa kontroll och källa |
 | --- | --- | --- |
 | **Google Brotli** | `1.0.10`, `1.1.1`, `1.2.1` per berörd gren | Grundfix; nås inte automatiskt av inbyggda kopior. [GitHub advisory](https://github.com/advisories/GHSA-9v8h-qqgm-4m35) |
-| **Node.js uppströms** | `22.23.4`, `24.22.1`, `26.12.1` (första rättade i grenarna) | Gäller rättad Node-distribution; vissa Linuxpaket använder separat system-Brotli, och gamla EOL-grenar saknar uppströmsstöd. [Node.js](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases) |
+| **Node.js uppströms** | Första Brotli-rättade: `22.23.4`, `24.22.1`, `26.12.1` (21 okt). Senare säkerhetsversioner: `22.23.5`, `24.22.3`, `26.13.1` (11 nov). | Version 24.22.1 hade en separat regression. Välj en senare säkerhetsuppdaterad version i den stödda grenen. Novemberutgåvorna rättar andra CVE:er. Vissa Linuxpaket använder system-Brotli och äldre grenar saknar uppströmsstöd. [Oktober](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases) · [November](https://nodejs.org/en/blog/vulnerability/november-2026-security-releases) |
 | **Microsoft .NET** | `8.0.33`, `9.0.22`, `10.0.14`; .NET 11-preview `RC3` | **Separat säkerhetsuppdatering 25 okt 2026**. Gäller de avkodningsvägar som Microsoft anger, **inte** varje `HttpClient`: ASP.NET Core request decompression och HTTP automatic response decompression är av som standard. Uppdatera rätt delad runtime och starta om; **self-contained/NativeAOT kräver ombyggnad och ny distribution**. **.NET Framework är inte berört av just denna advisory.** [Microsoft](https://github.com/dotnet/runtime/security/advisories/GHSA-p3jp-9v83-76w9) · [konkret kontroll](dataflode-till-patch.md#3-microsofts-net-rättning-vad-ska-uppdateras) |
 | **PowerShell 7** | `7.4.22`, `7.5.13`, `7.6.9` (första rättade i grenarna enligt MSRC) | `Invoke-WebRequest` och `Invoke-RestMethod` i PowerShell 7 har automatisk Brotli-svarsavkodning på som standard. Uppdatera den **PowerShell-version som schemalagda skript faktiskt kör**. [MSRC](https://www.microsoft.com/en-us/msrc/blog/2026/10/patch-now-php2shell-brotli-emudhra-guidance-for-customers) · [dataflöde](dataflode-till-patch.md) |
 | **Apache Arrow/PyArrow** | `26.0.1` uppdaterar medföljande Brotli i berörda PyArrow-wheels och R-binärer | Systemlänkade Arrow C++-byggen kan kräva separat system-Brotli. [Arrow](https://arrow.apache.org/blog/2026/11/03/26.0.1-release/) |
@@ -47,7 +50,7 @@ Tabellen sammanfattar rättningar och leverantörsbesked som kontrollerats senas
 
 Safes offentliga release- och säkerhetsuppgifter från november innehåller flera byggnummer. Varken Safes öppna novemberartikel eller det CVE-specifika besked som lästes 9 november knyter dessa byggnummer till en färdig Brotli-rättning. Skriv inte att de är Brotli-rättade utan separat belägg. [Safes öppna novemberartikel](https://support.safe.com/hc/en-us/articles/46792031942029-FME-November-2026-Security-Updates) · [FME Download](https://fme.safe.com/downloads/).
 
-**Källornas datum:** Esris artikel uppdaterades **7 november 2026** och kontrollerades igen **9 november**. Server-patchen publicerades 5 november. Microsofts .NET-besked publicerades **25 oktober**. Safes CVE-specifika artikel kontrollerades igen 9 november via inloggad läsning. Den anger ännu rättade FME-byggen som under arbete och en separat DuckDB-rättning. Safes öppna novemberartikel gäller andra säkerhetsbrister.
+**Källornas datum:** Esris artikel uppdaterades **9 november 2026** och kontrollerades igen **12 november**. Server-patchen publicerades 5 november. Microsofts .NET-besked publicerades **25 oktober**. Safes CVE-specifika artikel kontrollerades igen 9 november via inloggad läsning. Den anger ännu rättade FME-byggen som under arbete och en separat DuckDB-rättning. Safes öppna novemberartikel gäller andra säkerhetsbrister.
 
 Installera leverantörens rekommenderade säkerhetsuppdatering utan att först försöka reproducera sårbarheten i produkten. Patchtillgänglighet och bekräftad exponering är separata uppgifter.
 
@@ -65,7 +68,7 @@ Efter relevant uppdatering kan **omstart eller omdriftsättning** krävas. Kontr
 - **Rättad basavbild, gammal container:** den driftsatta avbilden har fortfarande ett gammalt innehåll eller en äldre digest.
 - **Fel miljö:** system-Python uppdateras, men QGIS eller ArcGIS använder egen Python/conda-runtime; PATH pekar mot en annan Node-exekverbar fil än den som kör servern.
 
-När GeoServer använder Java, Tomcat/Jetty, tillägg och separat native GDAL behöver samtliga delar ingå i uppgraderingskontrollen. Verifiera stöd för **hela kombinationen** före driftbyte och kontrollera varje relevant inläst bibliotek efteråt. Exempelvis kan ECW-lager behöva ett fungerande GDAL-/JNI-/codec-paket även när inga Brotli-data används. Modulsträngar som `SNAPSHOT` behöver granskas mot **byggursprung och releasekompatibilitet**; GeoServer- och GeoTools-versioner tillhör dessutom olika versionsserier. [GeoServer: uppgradering och native beroenden](geoserver.md).
+Om GeoServer använder separat native GDAL eller andra tillägg behöver deras Brotli-beroenden kontrolleras var för sig. En uppgradering av GeoServer eller Java verifierar inte en eventuell medföljande Brotli-kopia. [GeoServer: beroenden och avgränsningar](geoserver.md).
 
 ## Tre separata statusar
 

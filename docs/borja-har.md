@@ -21,7 +21,7 @@ Lokalt arbete kan minska vissa exponeringsvägar, men även en fil som ligger p�
 
 ## Kort fråga till IT eller leverantören
 
-> Vi använder **[produkt och version]** för **[aktuell funktion/import/tjänst]**. Är CVE-2026-111497 relevant för den avkodare som används i denna version? Vilken rättning rekommenderas för vår plattform, och hur kontrollerar vi att den används efter uppdatering? Om påverkan är okänd: vilken uppgift behövs för att bedöma den?
+> Vi använder **[produkt och version]** för **[aktuell funktion/import/tjänst]**. Vi behöver kontrollera både data som systemet tar emot och data som det självt hämtar. Är CVE-2026-111497 relevant för avkodaren i denna version? Vilken rättning rekommenderas för vår plattform, och hur verifierar vi den efter uppdatering? Om påverkan är okänd, vad behöver undersökas?
 
 För en förvaltare som behöver kartlägga mer: följ **data från källa till faktisk avkodare** i [dataflöde till patch](dataflode-till-patch.md). För teknisk prioritering av process och behörigheter: [riskkedja](riskkedja.md). Vid okänd produkt: [inventeringsmetod](ny-programvara.md).
 

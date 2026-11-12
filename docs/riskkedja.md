@@ -4,7 +4,7 @@
 
 **Vill du börja utan teknisk förkunskap eller identifiera vem som ska åtgärda?** [Börja här](borja-har.md).
 
-**Syftet:** kunna bedöma ett system även när dess produktnamn saknas i varje CVE-lista. Börja med vad som *kan* komma in, följ den faktiska avkodaren, identifiera **vilken process** som kan påverkas och undersök därefter vad den processen har möjlighet att skada eller komma åt. Först då går det att välja rätt skydd och bedöma uppdateringsbehov.
+Följ data från källa till avkodare. Identifiera vilken process som kan påverkas och vilka resurser den får använda. Då blir det möjligt att välja rätt skydd och prioritera uppdateringen även för produkter som saknas i vanliga CVE-listor.
 
 ```mermaid
 flowchart TD
@@ -24,6 +24,8 @@ flowchart TD
 ```
 
 **Viktig begränsning:** kedjan är **villkorad**, inte en automatisk följd. Att avkodaren får en felaktig ström betyder inte att CVE:n utlöses. Att en out-of-bounds-skrivning uppstår betyder inte att någon har tagit kontroll över processen. Krasch, informationsröjande och fjärrkodkörning är **olika möjliga resultat** med separata beviskrav. RCE har demonstrerats i avgränsade Node.js-testbyggen, **inte generellt för GIS-program**. [Node.js](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases) · [Imperva](https://www.imperva.com/blog/node2shell-from-brotli-data-to-remote-code-execution/).
+
+**När flera brister samverkar:** En annan brist kan i vissa miljöer ge tillgång till en funktion som använder Brotli. Om CVE:n sedan utlöses kan processens behörigheter och ytterligare brister påverka följderna. Det är en generell riskprincip, inte en verifierad angreppskedja för någon viss GIS-produkt.
 
 ## Läs riskkedjans fem led
 

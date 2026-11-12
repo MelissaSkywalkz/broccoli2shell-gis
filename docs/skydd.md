@@ -2,7 +2,7 @@
 
 **Kontrollerat: 8 november 2026.** [Översikt](../README.md) · [Patchkedja](patchkedjan.md)
 
-**Huvudåtgärd: installera en version som innehåller den korrigerade avkodaren och säkerställ att processen använder den.** Alla övriga kontroller är villkorade riskbegränsningar eller skademinimering. Använd [riskkedjan](riskkedja.md) för att bedöma både **vad som stoppar den angriparpåverkade indatan** och **vad som begränsar skadan om en process trots detta påverkas**.
+**Installera leverantörens rekommenderade säkerhetsuppdatering för den berörda produkten eller komponenten.** Kontrollera därefter att den körande processen använder rättad Brotli-kod. Övriga skydd kan begränsa exponering eller konsekvenser, men ersätter inte rättningen. Bedöm både hur data når avkodaren och vilka resurser processen kan nå. [Riskkedjan](riskkedja.md).
 
 | Skydd | Vilken väg bryter eller begränsar det? | Vad garanterar det inte? |
 | --- | --- | --- |

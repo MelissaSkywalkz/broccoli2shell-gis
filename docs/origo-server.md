@@ -46,6 +46,6 @@ Efter patchning ska ansvarig verifiera **processens faktiska körfil och version
 
 **Kvar att kontrollera:** Körande Node-exekverbar fil och version, eventuell proxy som vidarebefordrar HTTP-kroppar, relevanta Express-parsers och andra eventuella avkodare. Okänd nåbarhet betyder **undersök**, inte att produkten är säker eller exploaterbar.
 
-**Avgränsning:** Origo Servers andra säkerhetsfrågor, som generella proxybehörigheter eller SSRF, är **inte CVE-2026-111497** och ingår inte som påståenden här. En proxy som hämtar externa svar har en annan möjlig väg, vilken måste analyseras separat med den faktiska HTTP-klienten.
+**Avgränsning:** Den här sidan gäller Brotli och CVE-2026-111497. Funktioner som hämtar externa HTTP-svar behöver bedömas som separata möjliga avkodningsvägar med den klient som faktiskt används.
 
 **Öppen fråga:** Finns i aktuell Origo-installation även en HTTP-klient som automatiskt avkodar angriparpåverkade `br`-svar? Det kan inte fastställas genom att bara läsa Express-parsers i `app.js`.
