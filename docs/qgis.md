@@ -91,7 +91,19 @@ En teknisk rapport för **en särskild 3liz QGIS Server-avbild** visar att både
 
 **Öppna frågor:** Vilka QGIS-funktioner/insticksprogram öppnar JPEG XL, vilken libjxl- och Brotli-version laddas, och når utifrån påverkad metadata verkligen den aktuella avkodaren?
 
-## 4. QGIS Server i container: kontrollera avbildens rättning
+## 4. QGIS Server på Windows och GeoDirekt
+
+QGIS Server kan installeras separat från QGIS Desktop via OSGeo4W. I den tidigare kontrollerade paketlistan erbjuds `qgis-ltr-server` 3.44.15-1 och `qgis-server` 4.2.3-1.
+
+Sokigos offentliga distributionssida listar QGIS Server 3.44.15 för GeoDirekt, uppdaterad den 10 november 2026.
+
+Brotli-versionen i Sokigos paket har inte verifierats. Inte heller har en fullständig inventering av beroenden och laddade bibliotek genomförts för OSGeo4W:s separata QGIS Server-paket. Dessa distributioner ska inte likställas med de fristående QGIS Desktop-installationer som tidigare undersökts.
+
+En publicerad QGIS Server-version eller ett tillgängligt rättat Brotli-paket bekräftar inte vilken avkodare den körande tjänsten använder. Ingen QGIS Server-specifik CVE-utlösning eller kodkörning har verifierats här.
+
+Källor: [OSGeo4W](https://download.osgeo.org/osgeo4w/) · [Sokigos distributionssida](https://ismdist.sokigo.com/geodirekt/default.aspx?called_from=main_page).
+
+## 5. QGIS Server i container: kontrollera avbildens rättning
 
 [3liz/py-qgis-server #137](https://github.com/3liz/py-qgis-server/issues/137) dokumenterar att `3liz/qgis-map-server:4.2.2-1.9.7` hade ett Debian-Brotli-paket utan rättning. En projektföreträdare uppgav den **27 oktober 2026** att den ersattes av `4.2.3-1.9.7`, där `libbrotli1` korrigerats. Detta är en **bekräftad paketkorrigering i angiven avbild**, inte bekräftad RCE i QGIS Server eller garanti för andra 3liz-taggar. En ny image måste faktiskt hämtas och körande container återskapas.
 

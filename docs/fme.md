@@ -1,10 +1,10 @@
 # FME: samma CVE via HTTP, Parquet och DuckDB
 
-**Källkontroll:** Safes CVE-artikel lästes 7 och 9 november 2026, den 9 november via inloggad webbläsare. Vid försök att läsa artikeln utan inloggning den 8 november visades ett inloggningskrav. Nedladdningssidor och ändringsloggar kontrollerades den 8 november.
+**Källkontroll: 16 november 2026.** Safes CVE-specifika artikel granskades på nytt i tillhandahållen fulltext. Artikeln anger fortfarande att uppdaterade FME-byggen för 2026.1, 2026.2 och 2026.3 förbereds. Något färdigt byggnummer som uttryckligen rättar CVE-2026-111497 har inte bekräftats i artikeln. Separat rättning för den Brotli-kopia som ingår i DuckDB anges fortfarande som väntande. Tidigare kontroller av nedladdningar och ändringsloggar behåller sina datum.
 
 **Var finns CVE-felet?** I **Brotli-avkodning i de beroenden och komponenter FME använder**. Safe har bekräftat påverkan i sin produktfamilj; det är inte detsamma som att det offentliga underlaget har påvisat att FME:s egen applikationskod introducerade Brotli-felet. Leverantörsbeskedet är ändå grund för att följa FME:s rättningsråd.
 
-**Vad vet vi?** Safe bekräftar påverkan i FME Form, Engine, Flow och Hosted. Bland nämnda vägar finns HTTPCaller/OpenAPICaller, förhandsvisning och anslutningar, Parquet samt DuckDB. Dessa kan använda **olika Brotli-kopior**.
+**Vad vet vi?** Safe bekräftar påverkan i FME Form, Engine, Flow och Hosted. FME Workbench kan använda den berörda avkodaren även utan att en arbetsyta körs, bland annat vid förhandsvisning i HTTPCaller/OpenAPICaller och hantering av web connections. FME Flow påverkas genom sina Engines. Safe anger att webbapplikationen och dess tjänster inte använder Brotli i sin egen kod och att FME-produkterna inte levererar Node.js. Parquet och DuckDB är andra berörda vägar som kan använda **olika Brotli-kopior**.
 
 **Vad vet vi inte?** Det finns ingen FME-specifik CVE-utlösning eller kodkörning reproducerad i detta repo. Safe anger att rättade byggen för FME 2026.1 till 2026.3 förbereds. **Inget CVE-rättat FME-byggnummer har bekräftats i det kontrollerade underlaget.** Det är ett daterat besked, inte en garanti om senare versioner. En möjlig koppling mellan externa flöden och känsliga integrationer är en undersökningsfråga, inte bevis för åtkomst eller läckage.
 
@@ -14,7 +14,7 @@
 
 **Källa:** [Safes CVE-specifika artikel](https://support.safe.com/hc/en-us/articles/50040725669517-Brotli-Decoder-CVE-2026-111497-Is-FME-Impacted) ger produktbedömningen och rekommendationerna ovan. Den öppna novemberartikeln om andra säkerhetsbrister styrker inte ett visst CVE-rättat Brotli-byggnummer.
 
-Länken till Safes CVE-specifika artikel återkontrollerades den 12 november 2026 men innehållet kunde inte läsas anonymt. Det senast genomlästa underlaget är från den inloggade kontrollen 9 november. Safes öppna nedladdningssida kontrollerades den 12 november.
+Safes CVE-specifika artikel granskades i fulltext den 16 november 2026 från det underlag som tillhandahölls för denna uppdatering. Artikeln kan kräva inloggning. Den öppna nedladdningssidan kontrollerades tidigare den 12 november; ingen ny kontroll av nedladdningslistan ingår här.
 
 ## 1. HTTPCaller, OpenAPICaller och webbanslutningar
 

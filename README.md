@@ -4,7 +4,7 @@
 [![CVSS](https://img.shields.io/badge/CVSS%204.0-9.2%20Critical-f12c35)](https://www.cve.org/CVERecord?id=CVE-2026-111497)
 [![CISA KEV](https://img.shields.io/badge/CISA%20KEV-Listed-d97706)](https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2026-111497)
 
-**Uppdaterad: 12 november 2026**
+**Uppdaterad: 16 november 2026**
 
 **CVE-2026-111497** är ett minnesfel i Googles Brotli-avkodare. Felet är inte GIS-specifikt. Brotli används även i filformat, bibliotek och körmiljöer som förekommer i GIS-program.
 
@@ -14,7 +14,7 @@ GIS-program kan använda Brotli genom exempelvis GDAL/Arrow, Node.js och .NET. I
 
 En produkt kan innehålla berörd kod utan att avkodaren är nåbar. Rättningen behöver dessutom nå den version som användaren faktiskt kör. Några officiella exempel utanför GIS förklarar skillnaden. [Exempel och avgränsningar](docs/produktoversikt.md#exempel-utanför-gis-och-deras-betydelse-för-gis).
 
-Produktuppgifterna bygger på daterade leverantörsbesked och tidigare dokumenterade kontroller. Länkar och centrala öppna leverantörskällor återkontrollerades 12 november 2026. Safes CVE-artikel lästes senast via inloggning 9 november och kunde inte läsas anonymt den 12 november. De lokala installationsobservationerna är inte nya tester. Kontrollera alltid leverantörens senaste besked och den egna installationen. Tabellen visar inte vilka GIS-produkter som kan exploateras.
+Produktuppgifterna bygger på daterade leverantörsbesked och dokumenterade kontroller. Safes CVE-specifika artikel och Esris säkerhetsbesked granskades på nytt den 16 november 2026 utifrån tillhandahållet källmaterial. Övriga leverantörskontroller och lokala installationsobservationer behåller sina tidigare datum. Kontrollera alltid leverantörens senaste besked och den egna installationen. Tabellen visar inte vilka GIS-produkter som kan exploateras.
 
 ## Börja här: behöver du göra något?
 
@@ -67,12 +67,12 @@ Swagger/OpenAPI är ett **gränssnitt eller en API-beskrivning**, inte en egen B
 
 ## 3. Produkter: vad vet vi, vad vet vi inte och vad bör göras?
 
-**Status nedan gäller källunderlaget från 8 november 2026, inte läsarens installation.** ”Möjlig väg” betyder inte ”bekräftat exploaterbar produkt”. Leverantörens uttryckliga besked om påverkan väger tyngre än en hypotes om ett beroende.
+**Tabellen sammanfattar daterade källor och kontroller, inte läsarens installation.** Kontrolldatum anges i respektive produktunderlag. ”Möjlig väg” betyder inte ”bekräftat exploaterbar produkt”. Leverantörens uttryckliga besked om påverkan väger tyngre än en hypotes om ett beroende.
 
 | Produkt eller driftmiljö | Belägg och osäkerheter | Rekommenderad kontroll eller åtgärd |
 | --- | --- | --- |
 | **[QGIS](docs/qgis.md)** | **Dokumenterad Brotli-avkodning via GDAL/Arrow i specificerade QGIS-byggen.** De fristående Windows-MSI-paketen 3.44.15-2 och 4.2.3-2 innehåller enligt installationskontroller Brotli 1.2.0. Ingen produktspecifik RCE påstås här; andra indatavägar utreds separat. | Följ QGIS säkerhetsbesked. Befintliga MSI-installationer kan ha egen OSGeo4W Setup för paketuppdateringar; prova kontrollerat och verifiera laddad DLL. `brotli 1.2.1-1` rättar inte automatiskt separata GRASS-kopior. [QGIS](docs/qgis.md) |
-| **[FME Form/Flow](docs/fme.md)** | Safe bekräftar påverkan i FME genom HTTP-klient, Parquet och DuckDB. Enligt artikel kontrollerad 9 november förbereds rättade byggen för 2026.1 till 2026.3. DuckDB kräver separat rättning. Ingen färdig CVE-rättad FME-utgåva har bekräftats här. | Följ Safes råd för er version. Linux använder system-Brotli för HTTP/Parquet, men DuckDB har en egen kopia. Kontrollera även externa anrop från Workbench och schemalagda Engine-jobb. |
+| **[FME Form/Flow](docs/fme.md)** | Safe bekräftar påverkan genom Workbench och FME Engine, bland annat via HTTP, Parquet och DuckDB. FME Flow påverkas genom sina Engines, inte genom webbapplikationens egen kod. Enligt Safes CVE-besked, kontrollerat 16 november, förbereds uppdaterade 2026.1 till 2026.3-byggen. DuckDB kräver separat rättning. Inget färdigt CVE-rättat FME-byggnummer har bekräftats. | Följ Safes CVE-specifika råd. Kontrollera berörda HTTP-anrop, schemalagda arbetsytor och Parquet-/DuckDB-importer. På Linux behöver system-Brotli och DuckDB hanteras separat. |
 | **[ArcGIS](docs/arcgis.md)** | **Esri bekräftar påverkan via underliggande komponenter** för Server 11.5/12.0/12.1 och Pro 3.5+, med Node.js- och .NET-relaterade rättningskedjor. Server 11.1/11.3 berörs enligt Esri inte av *just Node.js/Brotli-felet*. Ingen specifik extern CVE-endpoint eller generell ArcGIS-RCE redovisas här. | Installera Esris Server-patch där den gäller; följ Esris aktuella besked om Pro och uppdatera relevant .NET separat. |
 | **[Origo Server, Node.js i backend](docs/origo-server.md)** | En möjlig väg till **Brotli-avkodaren som följer med Node.js** stöds av Express och granskad källkod. Inget eget CVE-fel i Origos applikationskod eller någon Origo-specifik exploatering har påvisats här. Webbklienten är separat. | Kontrollera om Node-backend körs; uppdatera och verifiera berörd Node.js-runtime enligt driftmiljöns och Node-projektets råd. |
 | **[Hajk, Node.js i vissa backenddistributioner](docs/hajk.md)** | Hajks backend kan använda **Brotli-avkodaren som följer med Node.js** via Express. Backend-ZIP använder driftmiljöns Node.js; full officiell Docker innehåller Node.js; statiska `hajk-simple` saknar Node-backend i drift. Inget eget CVE-fel i Hajks kod eller någon Hajk-specifik exploatering har påvisats här. | ZIP: uppdatera driftmiljöns Node.js. Full Docker: välj en aktuell nattlig releaseavbild för er minorversion (exempelvis `nightly-4.3`), **hämta och återskapa** containern och verifiera den körande Node-versionen. Nattliga byggen finns bara för de två senaste minorversionerna. |
@@ -101,8 +101,8 @@ Detta är **tillgängliga versioner eller daterad leverantörsstatus**, inte ett
 | **3liz QGIS Server** | Avbild `4.2.3-1.9.7` angavs innehålla rättat paket | Gäller den särskilda avbilden, inte alla QGIS Server-installationer. [Underhållarärende](https://github.com/3liz/py-qgis-server/issues/137) |
 | **ArcGIS Server** | Security 2026 Update 4 för `11.5`, `12.0`, `12.1` | Esris produktpatch, inte bevis om lokal installation. [Esri](https://support.esri.com/en-us/patches-updates/2026/arcgis-server-security-2026-update-4-patch) |
 | **ArcGIS Mission Server** | Security 2026 Update 1 för `11.5`, `12.0`, `12.1` (9 nov) | Separat från ArcGIS Server-patchen. [Esri](https://support.esri.com/en-us/patches-updates/2026/arcgis-mission-server-security-2026-update-1-patch) |
-| **ArcGIS Pro 3.5+** | Produktpatch **väntades** enligt Esris besked uppdaterat **9 november**, återkontrollerat 12 november | Daterat besked, inte ett påstående om aktuell status. Kontrollera även separat .NET. [Esri](https://www.esri.com/arcgis-blog/products/trust-arcgis/administration/brotli-vulnerabilities-broccoli2shell) |
-| **FME** | Safe anger påverkan och att rättade 2026.1 till 2026.3-byggen förbereds. DuckDB separat. | Kontrollera Safes [CVE-specifika besked](https://support.safe.com/hc/en-us/articles/50040725669517-Brotli-Decoder-CVE-2026-111497-Is-FME-Impacted) för er version. Novemberartikeln om andra sårbarheter bekräftar inte en Brotli-rättning. |
+| **ArcGIS Pro 3.5+** | Produktpatch **väntades** enligt Esris besked uppdaterat **9 november**, granskat igen 16 november | Daterat besked, inte ett påstående om aktuell status. Kontrollera även separat .NET. [Esri](https://www.esri.com/arcgis-blog/products/trust-arcgis/administration/brotli-vulnerabilities-broccoli2shell) |
+| **FME** | Safe anger påverkan och att rättade 2026.1 till 2026.3-byggen förbereds enligt artikel kontrollerad 16 november. DuckDB separat. | Kontrollera Safes [CVE-specifika besked](https://support.safe.com/hc/en-us/articles/50040725669517-Brotli-Decoder-CVE-2026-111497-Is-FME-Impacted) för er version. Novemberartikeln om andra sårbarheter bekräftar inte en Brotli-rättning. |
 
 En rättning i källkoden når inte automatiskt en installerad produkt eller den process som redan kör. Uppdatera via leverantörens kanal, starta om eller driftsätt om vid behov och kontrollera vilken beroendeversion som används. [Patchkedjan med tekniska distributionsvillkor](docs/patchkedjan.md) · [Bibliotek och inbyggda kopior](docs/bibliotek.md) · [Supply chain, hur sårbar kod följer med](docs/supply-chain.md).
 

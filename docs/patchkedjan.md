@@ -1,6 +1,6 @@
 # Patchkedjan: från rättat bibliotek till uppdaterad installation
 
-**Källkontroll: öppna huvudkällor återkontrollerade 12 november 2026. Tidigare lokala kontroller behåller sina ursprungliga datum.** [Översikt](../README.md) · [Skydd](skydd.md)
+**Källkontroll: Safes CVE-specifika besked och Esris produktbesked granskades 16 november 2026 utifrån tillhandahållna artikeltexter. Övriga huvudkällor och tidigare lokala kontroller behåller sina ursprungliga datum.** [Översikt](../README.md) · [Skydd](skydd.md)
 
 ```mermaid
 flowchart LR
@@ -42,7 +42,7 @@ Tabellen sammanfattar daterade rättningar och leverantörsbesked. De flesta pro
 | **ArcGIS Server** | Security 2026 Update 4 för 11.5, 12.0, 12.1 | Esris officiella produktpatch för den identifierade Node.js-frågan; välj rätt OS/produktversion. [Esri](https://support.esri.com/en-us/patches-updates/2026/arcgis-server-security-2026-update-4-patch) |
 | **ArcGIS Mission Server** | Security 2026 Update 1 för 11.5, 12.0, 12.1 (9 nov 2026) | Separat Esri-patch för Windows/Linux, `BUG-000188431`. [Esri](https://support.esri.com/en-us/patches-updates/2026/arcgis-mission-server-security-2026-update-1-patch) |
 | **ArcGIS Pro 3.5+** | **Produktpatch ännu inte tillgänglig enligt Esris besked uppdaterat 7 nov** | Detta är ett daterat leverantörsbesked, **inte** aktuell garanterad patchstatus. .NET-rättning är separat; kontrollera Esris senare produktbesked. [Esri](https://www.esri.com/arcgis-blog/products/trust-arcgis/administration/brotli-vulnerabilities-broccoli2shell) |
-| **FME Form/Flow** | Safe bekräftar påverkan i 2024.2 till 2026.3. I artikeln, kontrollerad 9 november via inloggad webbläsare, anges rättade byggen för 2026.1 till 2026.3 som under arbete. CVE-rättat byggnummer inte bekräftat. | Windows/macOS: medföljande Brotli. Linux: system-Brotli för HTTP och Parquet, men DuckDB har egen kopia. Följ Safes [CVE-besked](https://support.safe.com/hc/en-us/articles/50040725669517-Brotli-Decoder-CVE-2026-111497-Is-FME-Impacted) för både FME och DuckDB. |
+| **FME Form/Flow** | Safe bekräftar påverkan i 2024.2 till 2026.3. Enligt artikeln, granskad igen 16 november, förbereds uppdaterade 2026.1 till 2026.3-byggen med Brotli 1.2.1. Separat DuckDB-rättning väntar enligt beskedet. CVE-rättat byggnummer inte bekräftat. | Windows/macOS: medföljande Brotli. Linux: system-Brotli för HTTP och Parquet, men DuckDB har egen kopia. Följ Safes [CVE-besked](https://support.safe.com/hc/en-us/articles/50040725669517-Brotli-Decoder-CVE-2026-111497-Is-FME-Impacted) för både FME och DuckDB. |
 | **DuckDB** | Upstream-ändring för inbyggd Brotli dokumenterad | Ett merge/issue bevisar inte att rättningen nått viss DuckDB-release eller FME-utgåva. [DuckDB](https://github.com/duckdb/duckdb/issues/27660) |
 | **GeoServer/GeoWebCache, inklusive GDAL-tillägg** | Ingen generell CVE-produktpatch fastställd | Undersök aktiva Brotli4j/Jetty-tillägg **och eventuell ImageI/O-Ext GDAL/JNI-stapel i Tomcat**. `CURL_ENABLED=YES` visar cURL-stöd i GDAL, inte Brotli-användning eller CVE-exploatering. [GeoServer](geoserver.md) · [GeoServers GDAL-dokumentation](https://docs.geoserver.org/stable/en/user/data/raster/gdal/) |
 
@@ -50,7 +50,7 @@ Tabellen sammanfattar daterade rättningar och leverantörsbesked. De flesta pro
 
 Safes offentliga release- och säkerhetsuppgifter från november innehåller flera byggnummer. Varken Safes öppna novemberartikel eller det CVE-specifika besked som lästes 9 november knyter dessa byggnummer till en färdig Brotli-rättning. Skriv inte att de är Brotli-rättade utan separat belägg. [Safes öppna novemberartikel](https://support.safe.com/hc/en-us/articles/46792031942029-FME-November-2026-Security-Updates) · [FME Download](https://fme.safe.com/downloads/).
 
-**Källornas datum:** Esris artikel uppdaterades **9 november 2026** och kontrollerades igen **12 november**. Server-patchen publicerades 5 november. Microsofts .NET-besked publicerades **25 oktober**. Safes CVE-specifika artikel kontrollerades igen 9 november via inloggad läsning. Den anger ännu rättade FME-byggen som under arbete och en separat DuckDB-rättning. Safes öppna novemberartikel gäller andra säkerhetsbrister.
+**Källornas datum:** Esris artikel uppdaterades **9 november 2026** och granskades igen **16 november** utifrån tillhandahållen text. Server-patchen publicerades 5 november. Microsofts .NET-besked publicerades **25 oktober**. Safes CVE-specifika artikel granskades på nytt **16 november** och anger fortfarande rättade FME-byggen som under arbete samt separat DuckDB-rättning. Safes öppna novemberartikel gäller andra säkerhetsbrister.
 
 Installera leverantörens rekommenderade säkerhetsuppdatering utan att först försöka reproducera sårbarheten i produkten. Patchtillgänglighet och bekräftad exponering är separata uppgifter.
 
