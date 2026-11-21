@@ -1,12 +1,12 @@
 # ArcGIS: berörda versioner och separata rättningar
 
-**Källkontroll: 18 november 2026.** Esris säkerhetsbesked publicerades 29 oktober och uppdaterades 17 november 2026 med ArcGIS Enterprise 12.2 och instruktioner för kundhanterad Node.js. Esri Japan bekräftade 18 november att ArcGIS Server Security 2026 Update 4 även tillhandahålls för 12.2. ArcGIS Pro 3.5 och senare anges fortfarande som påverkade med väntande produktpatch. Microsofts separata .NET-besked publicerades 25 oktober.
+**Källstatus: 21 november 2026.** Esris säkerhetsbesked publicerades 29 oktober och uppdaterades 17 november med ArcGIS Enterprise 12.2 och instruktioner för kundhanterad Node.js. Esri Japan bekräftade 18 november att ArcGIS Server Security 2026 Update 4 även tillhandahålls för 12.2. Enligt Esris besked uppdaterat **20 november** påverkas ArcGIS Pro **3.5, 3.6 och 3.7**, medan **3.8.1 och senare** samt **ArcGIS Online** klassificeras som **inte påverkade**. Microsofts separata .NET-besked publicerades 25 oktober.
 
 Felet finns i Brotli-avkodning som följer med underliggande komponenter, bland annat Node.js i ArcGIS Server och .NET i vissa andra ArcGIS-komponenter. Esri bekräftar produktpåverkan, men grundfelet ligger i Brotli.
 
-**Vad vet vi?** Esri rapporterar påverkan för ArcGIS Server **11.5, 12.0, 12.1 och 12.2** samt ArcGIS Pro **3.5 och senare** (besked uppdaterat 17 november och granskat 18 november 2026). **ArcGIS Server Security 2026 Update 4** rättar den berörda Node.js-komponenten. Den kundhanterade .NET-körmiljön är en **separat** rättningskedja.
+**Vad vet vi?** Esri rapporterar påverkan för ArcGIS Server **11.5, 12.0, 12.1 och 12.2** samt ArcGIS Pro **3.5, 3.6 och 3.7** enligt besked uppdaterat 20 november 2026. Esri klassificerar **3.8.1 och senare** som inte påverkade. **ArcGIS Server Security 2026 Update 4** rättar den berörda Node.js-komponenten. Den kundhanterade .NET-körmiljön är en **separat** rättningskedja.
 
-**Bevisgräns:** Esris produktbesked visar inte att varje ArcGIS-ingång kan utlösa CVE:n eller att kodkörning har demonstrerats i ArcGIS. Esris besked anger att produktpatch för ArcGIS Pro 3.5+ fortfarande väntas **17 november**, enligt beskedet granskat 18 november; det är inte en garanti för status vid senare läsning.
+**Bevisgräns:** Esris produktbesked visar inte att varje ArcGIS-ingång kan utlösa CVE:n eller att kodkörning har demonstrerats i ArcGIS. Esris besked anger att produktpatchar för ArcGIS Pro 3.5–3.7 fortfarande väntas **20 november**; det är inte en garanti för status vid senare läsning.
 
 **Åtgärd:** Installera Esris säkerhetspatch för berörda Server-versioner. Uppdatera separat använd .NET-runtime enligt Microsoft och kontrollera Esris aktuella besked om ArcGIS Pro. Verifiera installerade produkt- och runtimeversioner. [Esris besked](https://www.esri.com/arcgis-blog/products/trust-arcgis/administration/brotli-vulnerabilities-broccoli2shell) · [Patchöversikt](patchkedjan.md).
 
@@ -52,13 +52,13 @@ Funktion i ArcGIS Pro / Web Adaptor / SDK-baserad tjänst
 
 **Omständigheter:** Microsoft anger att **ASP.NET Core request decompression och HttpClient automatic decompression inte är påslagna som standard**. Relevanta vägar är exempelvis uttryckligen aktiverad avkodning av inkommande begäranden, `HttpClient` med Brotli i `AutomaticDecompression`, eller direkt användning av `BrotliStream`/`BrotliDecoder` på angriparpåverkade data. När dessa vägar inte används kan ett närvarande .NET-paket vara irrelevant för just denna attackväg. [Microsofts advisory](https://github.com/dotnet/announcements/issues/494).
 
-**Vad är känt?** Enligt Esris besked uppdaterat 17 november och granskat 18 november 2026 anges påverkan för **ArcGIS Pro 3.5 och senare** samt att separat hanterad .NET-runtime används av bland annat ArcGIS Pro, **Enterprise Web Adaptor (IIS)**, SOE/SOI-tillägg och Cloud Builder. Det finns **inte** någon generell slutsats att varje sådan produktkonfiguration har en internetnåbar Brotli-ingång. Esris senaste avlästa produktbesked (uppdaterat 17 november, granskat 18 november) anger att produktpatch för **ArcGIS Pro 3.5+ väntas**. Kontrollera senare ändringar hos Esri före publicering eller driftbeslut.
+**Vad är känt?** Enligt Esris besked uppdaterat **20 november 2026** påverkas **ArcGIS Pro 3.5, 3.6 och 3.7**, och produktspecifika patchar väntas för dessa versioner. **ArcGIS Pro 3.8.1 och senare** klassificeras som **inte påverkade** av denna CVE. Esri beskriver separat hanterad .NET-runtime för bland annat ArcGIS Pro, **Enterprise Web Adaptor (IIS)**, SOE/SOI-tillägg och Cloud Builder. Det finns **inte** någon generell slutsats att varje sådan produktkonfiguration har en internetnåbar Brotli-ingång. Kontrollera både installerad produktversion och faktiskt använd .NET-runtime; en produktklassificering verifierar inte alla lokala beroenden.
 
 **.NET-patch finns:** Microsoft anger de första rättade versionerna **8.0.33**, **9.0.22** och **10.0.14** (och angiven rättad 11-förhandsversion). Uppdatera den runtime som produkten faktiskt använder. **Self-contained** .NET-applikationer kan kräva ombyggnad och ny distribution: enbart rättad delad runtime räcker inte. Uppdatering av .NET ersätter inte Esris separata ArcGIS-produktpatch. [.NET-advisory](https://github.com/dotnet/announcements/issues/494).
 
 ## ArcGIS Online och SDK-baserade appar
 
-**ArcGIS Online:** Esri anger införda begränsningsåtgärder och pågående uppdateringar; det är en leverantörshanterad tjänst och inte en lokal Node/.NET-patch för kunden. **ArcGIS Maps SDK for .NET 200.0+:** Esri anger att appar kan beröras; åtgärden är rättad .NET-runtime och **ombyggnad av appen**, inte nödvändigtvis uppgradering av SDK-versionen.
+**ArcGIS Online:** Esri klassificerar tjänsten som **inte påverkad** enligt säkerhetsbeskedet uppdaterat **20 november 2026**. Tidigare angavs begränsningsåtgärder och pågående uppdateringar. Tjänsten är leverantörshanterad och kräver inte lokal Node/.NET-patchning av kunden för själva ArcGIS Online. **ArcGIS Maps SDK for .NET 200.0+:** Esri anger att appar kan beröras; åtgärden är rättad .NET-runtime och **ombyggnad av appen**, inte nödvändigtvis uppgradering av SDK-versionen.
 
 ## Sammanfattning
 
@@ -67,7 +67,9 @@ Funktion i ArcGIS Pro / Web Adaptor / SDK-baserad tjänst
 | ArcGIS Server 11.5/12.0/12.1/12.2 | **Bekräftad** | Node.js-komponent; exakt extern ingång inte beskriven | **Ja**, Security 2026 Update 4 |
 | ArcGIS Mission Server 11.5/12.0/12.1/12.2 | **Bekräftad enligt separat Esri-patch** | Produktspecifik extern ingång inte visad här | **Ja**, Security 2026 Update 1 |
 | ArcGIS Server 11.1/11.3 | Esri anger **inte** berörda av just denna Node.js-fråga | Ingen generell slutsats om andra delar eller framtida byggen | Följ produktens övriga support-/patchstatus |
-| ArcGIS Pro 3.5+ | **Bekräftad** | Produktspecifika dataflöden inte fullt kartlagda | Produktpatch **väntar enligt besked uppdaterat 17 nov**, granskat 18 nov; .NET separat rättad |
+| ArcGIS Pro 3.5/3.6/3.7 | **Bekräftad** | Produktspecifika dataflöden inte fullt kartlagda | Produktpatchar **väntar enligt besked 20 nov**; .NET separat |
+| ArcGIS Pro 3.8.1 och senare | **Inte påverkade enligt Esri** | Avser Esris produktklassificering, inte en verifiering av varje lokal runtime | Ingen CVE-specifik Pro-patch behövs enligt beskedet |
+| ArcGIS Online | **Inte påverkad enligt Esri 20 nov** | Leverantörshanterad tjänst | Ingen kundinstallerad produktpatch |
 | Enterprise SDK / Experience Builder | Kundhanterad Node.js kan behöva uppdateras separat | Exakt exponering beror på driftsättning och använd runtime | Följ Esris instruktioner från 17 nov; kontrollera körande Node.js-version |
 | .NET i Web Adaptor, SOE/SOI m.fl. | Esri anger kundhanterad runtime | Bara konfigurationer som avkodar angriparpåverkad Brotli | **Ja**, .NET 8.0.33 / 9.0.22 / 10.0.14 |
 
