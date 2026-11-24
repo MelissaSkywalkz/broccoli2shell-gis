@@ -1,20 +1,20 @@
 # FME: samma CVE via HTTP, Parquet och DuckDB
 
-**Källkontroll: 16 november 2026.** Safes CVE-specifika artikel granskades på nytt i tillhandahållen fulltext. Artikeln anger fortfarande att uppdaterade FME-byggen för 2026.1, 2026.2 och 2026.3 förbereds. Något färdigt byggnummer som uttryckligen rättar CVE-2026-111497 har inte bekräftats i artikeln. Separat rättning för den Brotli-kopia som ingår i DuckDB anges fortfarande som väntande. Tidigare kontroller av nedladdningar och ändringsloggar behåller sina datum.
+**Källkontroll: 24 november 2026.** Safes CVE-specifika artikel, uppdaterad 23 november, granskades i tillhandahållen fulltext. Safe bekräftar att 2026.3.2.0, 2026.2.1.3 och 2026.1.2.2 släpptes 19 november med gemensam Brotli 1.2.1. DuckDB:s inbyggda Brotli är ännu inte rättad i FME. Tidigare lokala kontroller behåller sina datum.
 
 **Var finns CVE-felet?** I **Brotli-avkodning i de beroenden och komponenter FME använder**. Safe har bekräftat påverkan i sin produktfamilj; det är inte detsamma som att det offentliga underlaget har påvisat att FME:s egen applikationskod introducerade Brotli-felet. Leverantörsbeskedet är ändå grund för att följa FME:s rättningsråd.
 
 **Vad vet vi?** Safe bekräftar påverkan i FME Form, Engine, Flow och Hosted. FME Workbench kan använda den berörda avkodaren även utan att en arbetsyta körs, bland annat vid förhandsvisning i HTTPCaller/OpenAPICaller och hantering av web connections. FME Flow påverkas genom sina Engines. Safe anger att webbapplikationen och dess tjänster inte använder Brotli i sin egen kod och att FME-produkterna inte levererar Node.js. Parquet och DuckDB är andra berörda vägar som kan använda **olika Brotli-kopior**.
 
-**Vad vet vi inte?** Det finns ingen FME-specifik CVE-utlösning eller kodkörning reproducerad i detta repo. Safe anger att rättade byggen för FME 2026.1 till 2026.3 förbereds. **Inget CVE-rättat FME-byggnummer har bekräftats i det kontrollerade underlaget.** Det är ett daterat besked, inte en garanti om senare versioner. En möjlig koppling mellan externa flöden och känsliga integrationer är en undersökningsfråga, inte bevis för åtkomst eller läckage.
+**Vad vet vi inte?** Det finns ingen FME-specifik CVE-utlösning eller kodkörning reproducerad i detta repo. Safe bekräftar rättade byggen för gemensam Brotli, men inte för DuckDB. Publicerade byggnummer verifierar inte vilken version som är installerad eller vilken avkodare en körande process använder. En möjlig koppling mellan externa flöden och känsliga integrationer är en undersökningsfråga, inte bevis för åtkomst eller läckage.
 
-**Vad bör göras ändå?** Följ Safes säkerhetsråd för er version och plattform utan att invänta eget exploittest. Inventera aktiva HTTP-/filflöden och körkonton, och be Safe eller driftansvarig bekräfta rättad produktversion samt eventuella separata DuckDB-/Linux-Brotli-kopior. [Daterad rättningsstatus](patchkedjan.md).
+**Vad bör göras ändå?** Följ Safes säkerhetsråd för er version och plattform utan att invänta eget exploittest. Inventera aktiva HTTP-/filflöden och körkonton, och installera tillämplig rättad FME-utgåva och kontrollera faktiskt använd system-Brotli på Linux. Läs endast DuckDB-data från betrodda källor tills rättningen levereras. [Daterad rättningsstatus](patchkedjan.md).
 
 **Tekniska belägg och vidare läsning:** [README](../README.md) · [Dataflöde till patch](dataflode-till-patch.md) · [Riskkedja](riskkedja.md) · [Patchkedja](patchkedjan.md)
 
-**Källa:** [Safes CVE-specifika artikel](https://support.safe.com/hc/en-us/articles/50040725669517-Brotli-Decoder-CVE-2026-111497-Is-FME-Impacted) ger produktbedömningen och rekommendationerna ovan. Den öppna novemberartikeln om andra säkerhetsbrister styrker inte ett visst CVE-rättat Brotli-byggnummer.
+**Källa:** [Safes CVE-specifika artikel](https://support.safe.com/hc/en-us/articles/50040725669517-Brotli-Decoder-CVE-2026-111497-Is-FME-Impacted) ger produktbedömningen och rekommendationerna ovan. Safe hänvisar till [FME November 2026 Security Updates, Update 2](https://support.safe.com/hc/en-us/articles/46792031942029-FME-November-2026-Security-Updates) för uppgraderingsanvisningar.
 
-Safes CVE-specifika artikel granskades i fulltext den 16 november 2026 från det underlag som tillhandahölls för denna uppdatering. Artikeln kan kräva inloggning. Den öppna nedladdningssidan kontrollerades tidigare den 12 november; ingen ny kontroll av nedladdningslistan ingår här.
+Artikeln kan kräva inloggning. Uppgifterna om rättade byggen kommer från den tillhandahållna artikelversionen från 23 november, inte en ny kontroll av nedladdningslistan eller en lokal installation.
 
 ## 1. HTTPCaller, OpenAPICaller och webbanslutningar
 
@@ -77,14 +77,20 @@ Ett **hypotetiskt** exempel med en verksamhetsintegration som hanterar personupp
 
 | FME-miljö | Var bör rättningen komma ifrån? | Status enligt kontrollerat underlag |
 | --- | --- | --- |
-| **Windows / macOS** | Uppdaterad FME-utgåva som ersätter medföljande Brotli | Safe anger att rättade 2026.1 till 2026.3-byggen förbereds. Inget rättat byggnummer bekräftat här. |
+| **Windows / macOS** | Uppdaterad FME-utgåva som ersätter medföljande Brotli | Safe bekräftar 2026.3.2.0, 2026.2.1.3 och 2026.1.2.2 med gemensam Brotli 1.2.1. DuckDB kvarstår. |
 | **Linux: HTTP och Parquet** | Linuxdistributionens rättade Brotli-paket där dessa funktioner använder systembiblioteket | **Systemrättningar finns**, men kontrollera körande FME-process och paketkälla. |
-| **DuckDB i FME** | DuckDB-rättningen måste ingå i den FME-utgåva som levererar biblioteket | Safe anger separat arbete med DuckDB. Att en kodändring är sammanslagen innebär inte att den nått en FME-release. |
-| **Flow Hosted** | Plattformens Ubuntu-säkerhetsuppdatering och relevant omstart; DuckDB separat | Safe anger automatiska säkerhetsuppdateringar för system-Brotli, men en omstart krävs för att använda rättad kod. DuckDB påverkas inte av systemuppdateringen. |
+| **DuckDB i FME** | DuckDB-rättningen måste ingå i den FME-utgåva som levererar biblioteket | DuckDB-projektet har införlivat rättningen i källkoden men ännu inte publicerat en rättad utgåva enligt Safe 23 november. Därefter behöver rättningen ingå i FME. |
+| **Flow Hosted** | Plattformens Ubuntu-säkerhetsuppdatering och relevant omstart; DuckDB separat | Ubuntu-rättningen installeras automatiskt på stödda versioner; starta om FME Flow eller instansen. Uppgradera även FME via Hosted-konsolen. Ubuntu äldre än 22.04 behöver uppgraderas enligt Safe. DuckDB kvarstår. |
 
-**Versionsskillnad i Safes artikel:** Sammanfattningstabellen anger påverkan till och med **FME 2026.3**, medan detaljavsnittet för Windows/macOS anger medföljande Brotli `1.1.0` till och med **FME 2026.4**. Skillnaden är inte förklarad i artikeln. Utgå inte från att 2026.4 är rättad eller opåverkad enbart genom att läsa tabellen.
+**Versionsuppgifter:** Safe anger påverkan från FME 2024.2 till och med 2026.1.2.1, 2026.2.1.2 respektive 2026.3.1.1. Den äldre detaljtexten om Brotli 1.1.0 till och med 2026.4 är inte uppdaterad i linje med rättningstabellen. Utgå från de uttryckligen bekräftade byggnumren.
 
-Safes [öppna nedladdningssida](https://fme.safe.com/downloads/) listar bland annat `2026.2.1.2`, `2026.1.2.1`, `2025.2.4.2`, `2025.1.3.5`, `2025.0.3.2` och `2024.2.5.2`. Safes [novemberartikel om säkerhetsuppdateringar](https://support.safe.com/hc/en-us/articles/46792031942029-FME-November-2026-Security-Updates) och [changelog](https://fme.safe.com/changelog/) visar att säkerhetsfixar har släppts, men de öppna uppgifterna som kunde läsas här **binder inte dessa byggnummer specifikt till CVE-2026-111497**. Märk dem därför inte som bekräftat rättade för Brotli utan uttryckligt stöd från Safe.
+| Versionsgren | Rättat bygge för gemensam Brotli (19 november) |
+| --- | --- |
+| 2026.1 | 2026.1.2.2 |
+| 2026.2 | 2026.2.1.3 |
+| 2026.3 | 2026.3.2.0 |
+
+På Linux används system-Brotli för HTTP och Parquet. Kontrollera distributionens säkerhetsrättning (Safe anger 1.0.10, 1.1.1 eller 1.2.1 eller senare). Äldre FME-grenar har inget bekräftat rättat bygge i detta besked. Följ Safes uppgraderingsråd. DuckDB omfattas inte av dessa rättningar.
 
 **Tillfällig riskbegränsning om patch saknas eller ännu inte är klarlagd:** Be Safe eller er drift-/leverantörskontakt om **CVE-specifik rekommendation för er version och plattform**. Begränsa vid behov just de arbetsflöden som tar emot angriparpåverkbar Brotli-data, utan att stoppa normal verksamhet i onödan. Kontroll av källor, behörigheter och importer är kompletterande skydd, inte en ersättning för rättning när en relevant uppdatering finns. Ett uteblivet produktspecifikt exploitbevis är inte skäl att avvakta en rekommenderad säkerhetspatch.
 
@@ -129,4 +135,4 @@ Safes [öppna nedladdningssida](https://fme.safe.com/downloads/) listar bland an
 | **Rättning** | Rättningen måste nå FME:s **medföljande DuckDB**, inte enbart operativsystemets Brotli. |
 | **Kvarvarande osäkerhet** | FME-levererad DuckDB-version, använd kodväg och CVE-specifik produktpatch. |
 
-**Öppna frågor:** Vilken FME-byggning rättar den *medföljande* avkodaren? Vilken DuckDB-version levereras och när? Använder aktuell Engine de systembibliotek som uppdaterats? Svar kräver tillgång till aktuell leverantörsdokumentation och den lokala installationen.
+**Öppna frågor:** Är ett av de rättade FME-byggena installerat? När levereras en FME-utgåva med rättad DuckDB? Använder aktuell Engine de systembibliotek som uppdaterats? Svar kräver tillgång till aktuell leverantörsdokumentation och den lokala installationen.
