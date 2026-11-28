@@ -1,6 +1,6 @@
 # ArcGIS: berörda versioner och separata rättningar
 
-**Källstatus: 21 november 2026.** Esris säkerhetsbesked publicerades 29 oktober och uppdaterades 17 november med ArcGIS Enterprise 12.2 och instruktioner för kundhanterad Node.js. Esri Japan bekräftade 18 november att ArcGIS Server Security 2026 Update 4 även tillhandahålls för 12.2. Enligt Esris besked uppdaterat **20 november** påverkas ArcGIS Pro **3.5, 3.6 och 3.7**, medan **3.8.1 och senare** samt **ArcGIS Online** klassificeras som **inte påverkade**. Microsofts separata .NET-besked publicerades 25 oktober.
+**Källstatus: 28 november 2026.** Esris säkerhetsbesked publicerades 29 oktober och uppdaterades 17 november med ArcGIS Enterprise 12.2 och instruktioner för kundhanterad Node.js. Esri Japan bekräftade 18 november att ArcGIS Server Security 2026 Update 4 även tillhandahålls för 12.2. Enligt Esris besked uppdaterat **20 november** påverkas ArcGIS Pro **3.5, 3.6 och 3.7**, medan **3.8.1 och senare** samt **ArcGIS Online** klassificeras som **inte påverkade**. Microsofts separata .NET-besked publicerades 25 oktober.
 
 Felet finns i Brotli-avkodning som följer med underliggande komponenter, bland annat Node.js i ArcGIS Server och .NET i vissa andra ArcGIS-komponenter. Esri bekräftar produktpåverkan, men grundfelet ligger i Brotli.
 
@@ -30,7 +30,7 @@ ArcGIS Server-funktion som använder berörd Node.js/Brotli
 
 ## ArcGIS Mission Server: separat säkerhetspatch
 
-Esri publicerade **ArcGIS Mission Server Security 2026 Update 1** den **9 november 2026** för Mission Server **11.5, 12.0 och 12.1** på Windows och Linux. I säkerhetsbeskedet uppdaterat 17 november omfattas även **12.2**. Patchen åtgärdar `BUG-000188431`, som Esri kopplar till CVE-2026-111497. Det är en **egen produktpatch**, inte samma patch som ArcGIS Server Security 2026 Update 4 (`BUG-000188308`). Installera endast den Mission Server-patch som motsvarar produktversion och plattform; följ Esris anvisningar för kontroll efter installation. Detta leverantörsbesked verifierar inte en specifik extern angreppsväg eller RCE i Mission Server. [Esris Mission Server-patch](https://support.esri.com/en-us/patches-updates/2026/arcgis-mission-server-security-2026-update-1-patch).
+Esri publicerade **ArcGIS Mission Server Security 2026 Update 1** den **9 november 2026** för Mission Server **11.5, 12.0 och 12.1** på Windows och Linux. I säkerhetsbeskedet uppdaterat 17 november omfattas även **12.2**, och i beskedet uppdaterat 24 november även **11.1 och 11.3**. Vid kontroll 28 november saknades separata nedladdningslänkar för 11.1 i patchens Windows- och Linux-tabeller; bekräfta tillgängligheten med Esri. ArcGIS Server 11.1 och 11.3 klassificeras fortsatt som inte påverkade av just Node.js/Brotli-felet. Patchen åtgärdar `BUG-000188431`, som Esri kopplar till CVE-2026-111497. Det är en **egen produktpatch**, inte samma patch som ArcGIS Server Security 2026 Update 4 (`BUG-000188308`). Installera endast den Mission Server-patch som motsvarar produktversion och plattform; följ Esris anvisningar för kontroll efter installation. Detta leverantörsbesked verifierar inte en specifik extern angreppsväg eller RCE i Mission Server. [Esris Mission Server-patch](https://support.esri.com/en-us/patches-updates/2026/arcgis-mission-server-security-2026-update-1-patch).
 
 ## Kundhanterad Node.js i Enterprise SDK och Experience Builder
 
@@ -65,7 +65,7 @@ Funktion i ArcGIS Pro / Web Adaptor / SDK-baserad tjänst
 | Del | Påverkansbesked | CVE-ingång till avkodare | Patch |
 | --- | --- | --- | --- |
 | ArcGIS Server 11.5/12.0/12.1/12.2 | **Bekräftad** | Node.js-komponent; exakt extern ingång inte beskriven | **Ja**, Security 2026 Update 4 |
-| ArcGIS Mission Server 11.5/12.0/12.1/12.2 | **Bekräftad enligt separat Esri-patch** | Produktspecifik extern ingång inte visad här | **Ja**, Security 2026 Update 1 |
+| ArcGIS Mission Server 11.1/11.3/11.5/12.0/12.1/12.2 | **Bekräftad enligt separat Esri-patch** | Produktspecifik extern ingång inte visad här | **Ja enligt Esri**, Security 2026 Update 1; nedladdning för 11.1 behöver bekräftas |
 | ArcGIS Server 11.1/11.3 | Esri anger **inte** berörda av just denna Node.js-fråga | Ingen generell slutsats om andra delar eller framtida byggen | Följ produktens övriga support-/patchstatus |
 | ArcGIS Pro 3.5/3.6/3.7 | **Bekräftad** | Produktspecifika dataflöden inte fullt kartlagda | Produktpatchar **väntar enligt besked 20 nov**; .NET separat |
 | ArcGIS Pro 3.8.1 och senare | **Inte påverkade enligt Esri** | Avser Esris produktklassificering, inte en verifiering av varje lokal runtime | Ingen CVE-specifik Pro-patch behövs enligt beskedet |

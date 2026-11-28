@@ -1,6 +1,6 @@
 # Patchkedjan: från rättat bibliotek till uppdaterad installation
 
-**Källstatus: Safes CVE-specifika besked uppdaterades 23 november och granskades i tillhandahållen fulltext 24 november 2026. Esris besked uppdaterades 20 november. Övriga huvudkällor och tidigare lokala kontroller behåller sina datum.** [Översikt](../README.md) · [Skydd](skydd.md)
+**Källstatus: Safes CVE-specifika besked uppdaterades 23 november och granskades i tillhandahållen fulltext 24 november 2026. Esris besked uppdaterades 24 november. Övriga huvudkällor och tidigare lokala kontroller behåller sina datum.** [Översikt](../README.md) · [Skydd](skydd.md)
 
 ```mermaid
 flowchart LR
@@ -40,7 +40,7 @@ Tabellen sammanfattar daterade rättningar och leverantörsbesked. De flesta pro
 | **Python Brotli / brotlicffi** | PyPI `Brotli 1.2.1`, `brotlicffi 1.2.1.0` | Måste träffa den Pythonmiljö som programmet faktiskt använder. [GHSA](https://github.com/advisories/GHSA-9v8h-qqgm-4m35) |
 | **3liz QGIS Server** | Avbild `4.2.3-1.9.7` enligt underhållaren 27 okt | Rättar dokumenterad `libbrotli1`-förekomst i den särskilda avbilden; andra images/versioner behöver eget underlag. [Issue #137](https://github.com/3liz/py-qgis-server/issues/137) |
 | **ArcGIS Server** | Security 2026 Update 4 för 11.5, 12.0, 12.1 och 12.2 | Esris produktpatch för den identifierade Node.js-frågan, `BUG-000188308`. Välj rätt OS/produktversion. 12.2 bekräftad av Esri Japan 18 november. [Esri](https://support.esri.com/en-us/patches-updates/2026/arcgis-server-security-2026-update-4-patch) · [Esri Japan](https://support.esrij.com/news/38149) |
-| **ArcGIS Mission Server** | Security 2026 Update 1 för 11.5, 12.0, 12.1 och 12.2 (ursprungligen 9 nov 2026) | Separat Esri-patch för Windows/Linux, `BUG-000188431`. 12.2 anges i Esris besked uppdaterat 17 november. [Esri](https://support.esri.com/en-us/patches-updates/2026/arcgis-mission-server-security-2026-update-1-patch) |
+| **ArcGIS Mission Server** | Security 2026 Update 1 för 11.1, 11.3, 11.5, 12.0, 12.1 och 12.2 (ursprungligen 9 nov 2026) | Separat Esri-patch för Windows/Linux, `BUG-000188431`. 12.2 anges i Esris besked uppdaterat 17 november; 11.1 och 11.3 tillkom 24 november. Vid kontroll 28 november saknades separata nedladdningslänkar för 11.1 i patchens Windows- och Linux-tabeller; bekräfta tillgängligheten med Esri. [Esri](https://support.esri.com/en-us/patches-updates/2026/arcgis-mission-server-security-2026-update-1-patch) |
 | **ArcGIS Enterprise SDK / Experience Builder** | Kundhanterad Node.js ska uppdateras enligt Esris instruktioner från 17 november | Skilj mellan produktpatchad ArcGIS Server och separata Node.js-installationer på applikationsservrar och utvecklingsdatorer. [Esri](https://www.esri.com/arcgis-blog/products/trust-arcgis/administration/brotli-vulnerabilities-broccoli2shell) |
 | **ArcGIS Pro 3.5–3.7** | **Produktpatchar väntar enligt Esris besked uppdaterat 20 november** | ArcGIS Pro **3.8.1 och senare** klassificeras som **inte påverkade** och behöver enligt Esri ingen CVE-specifik Pro-patch. Separat .NET-runtime behöver bedömas utifrån faktisk installation. [Esri](https://www.esri.com/arcgis-blog/products/trust-arcgis/administration/brotli-vulnerabilities-broccoli2shell) |
 | **FME Form/Flow** | **Delvis rättad:** 2026.3.2.0, 2026.2.1.3 och 2026.1.2.2 (19 november) med gemensam Brotli 1.2.1. DuckDB-rättning väntar enligt Safe 23 november. | Windows/macOS: medföljande Brotli. Linux: system-Brotli för HTTP och Parquet, men DuckDB har egen kopia. Följ Safes [CVE-besked](https://support.safe.com/hc/en-us/articles/50040725669517-Brotli-Decoder-CVE-2026-111497-Is-FME-Impacted) för både FME och DuckDB. |
@@ -51,7 +51,7 @@ Tabellen sammanfattar daterade rättningar och leverantörsbesked. De flesta pro
 
 Safes CVE-specifika besked från 23 november bekräftar de tre byggnumren ovan. Tidigare novemberbyggen med andra säkerhetsfixar ska inte klassificeras som Brotli-rättade enbart på grund av dessa fixar. [Safes novemberartikel, Update 2](https://support.safe.com/hc/en-us/articles/46792031942029-FME-November-2026-Security-Updates).
 
-**Källornas datum:** Esris artikel uppdaterades **20 november 2026** med ändrad status för ArcGIS Pro och ArcGIS Online. Server-patchen publicerades 5 november. Microsofts .NET-besked publicerades **25 oktober**. Safes CVE-specifika artikel uppdaterades **23 november** och bekräftar rättade byggen från **19 november**, med kvarstående DuckDB-risk.
+**Källornas datum:** Esris artikel uppdaterades **20 november 2026** med ändrad status för ArcGIS Pro och ArcGIS Online, och 24 november med utökad Mission Server-status. Server-patchen publicerades 5 november. Microsofts .NET-besked publicerades **25 oktober**. Safes CVE-specifika artikel uppdaterades **23 november** och bekräftar rättade byggen från **19 november**, med kvarstående DuckDB-risk.
 
 Installera leverantörens rekommenderade säkerhetsuppdatering utan att först försöka reproducera sårbarheten i produkten. Patchtillgänglighet och bekräftad exponering är separata uppgifter.
 
